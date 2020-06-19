@@ -24,10 +24,10 @@ ArXiv | Interactive Demo
 We chose to encode each tissue patch with a 1024-dim feature vector using a truncated, pretrained ResNet50. For each WSI, these features are expected to be saved as matrices of torch tensors of size N x 1024, where N is the number of patches from each WSI (varies from slide to slide):
 ```bash
 FEATURES_DIRECTORY/
-    └──pt_files
-	     ├── slide_1.pt
-         ├── slide_2.pt
-         └── ...
+    └── pt_files
+	      ├── slide_1.pt
+          ├── slide_2.pt
+          └── ...
 ```
 Please refer to refer to CLAM for examples on how perform this feature extraction step.
 
