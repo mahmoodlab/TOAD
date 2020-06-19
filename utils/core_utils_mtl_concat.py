@@ -3,7 +3,7 @@ import torch
 import pickle 
 from utils.utils import *
 import os
-from datasets.dataset_generic import save_splits
+from datasets.dataset_mtl_concat import save_splits
 from sklearn.metrics import roc_auc_score
 from models.model_toad import TOAD_fc_mtl_concat
 from sklearn.metrics import roc_auc_score, roc_curve
