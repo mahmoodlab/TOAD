@@ -39,12 +39,10 @@ def get_simple_loader(dataset, batch_size=1):
 	loader = DataLoader(dataset, batch_size=batch_size, sampler = sampler.SequentialSampler(dataset), collate_fn = collate_MIL_mtl_concat, **kwargs)
 	return loader 
 
-def get_split_loader(split_dataset, training = False, testing = False, weighted = False, collate_fn='MIL'):
+def get_split_loader(split_dataset, training = False, testing = False, weighted = False):
 	"""
 		return either the validation loader or training loader 
 	"""
-	collate = collate_dict[collate_fn]
-
 	kwargs = {'num_workers': 4} if device.type == "cuda" else {}
 	if not testing:
 		if training:
