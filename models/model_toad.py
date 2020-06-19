@@ -12,11 +12,11 @@ args:
     L: input feature dimension
     D: hidden layer dimension
     dropout: whether to use dropout (p = 0.25)
-    n_classes: number of classes (experimental usage for multiclass MIL)
+    n_classes: number of classes 
 """
 class Attn_Net_Gated(nn.Module):
 
-    def __init__(self, L = 1024, D = 256, dropout = False, n_classes = 1):
+    def __init__(self, L = 1024, D = 256, dropout = False, n_tasks = 1):
         super(Attn_Net_Gated, self).__init__()
         self.attention_a = [
             nn.Linear(L, D),
@@ -31,7 +31,7 @@ class Attn_Net_Gated(nn.Module):
         self.attention_a = nn.Sequential(*self.attention_a)
         self.attention_b = nn.Sequential(*self.attention_b)
         
-        self.attention_c = nn.Linear(D, n_classes)
+        self.attention_c = nn.Linear(D, n_tasks)
 
     def forward(self, x):
         a = self.attention_a(x)
@@ -63,9 +63,9 @@ class TOAD_fc_mtl_concat(nn.Module):
         if dropout:
             fc.append(nn.Dropout(0.25))
         if gate:
-            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_classes = 2)
+            attention_net = Attn_Net_Gated(L = size[1], D = size[2], dropout = dropout, n_tasks = 2)
         else:
-            attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_classes = 2)
+            attention_net = Attn_Net(L = size[1], D = size[2], dropout = dropout, n_tasks = 2)
         
         fc.append(attention_net)
         self.attention_net = nn.Sequential(*fc)
