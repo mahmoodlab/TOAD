@@ -88,7 +88,7 @@ tensorboard --logdir=.
 This should open a browser window and show the logged training/validation statistics in real time. 
 For information on each argument, see:
 ``` shell
-python main.py -h
+python main_mtl_concat.py -h
 ```
 
 ### Evaluation 
@@ -115,9 +115,10 @@ To test trained models on your own custom datasets, first add them into **eval_m
 ## Reference
 If you find our work useful in your research or if you use parts of this code please consider citing our paper:
 ```
-@inproceedings{lu2020clam,
-  title     = {Data Efficient and Weakly Supervised Computational Pathology on Whole Slide Images},
-  author    = {Ming Y. Lu, Drew F. K. Williamson, Tiffany Y. Chen, Richard J. Chen, Matteo Barbieri, Faisal Mahmood},
+
+@inproceedings{lu2020toad,
+  title     = {Deep Learning-based Computational Pathology Predicts Origins for Cancers of Unknown Primary},
+  author    = {Ming Y. Lu, Melissa Zhao, Maha Shady, Jana Lipkova,  Tiffany Y. Chen,  Drew F. K. Williamson, Faisal Mahmood},
   booktitle = {arXiv},
   year = {2020}
 }
