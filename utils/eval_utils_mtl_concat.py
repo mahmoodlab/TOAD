@@ -35,7 +35,7 @@ def eval(dataset, args, ckpt_path):
     model = initiate_model(args, ckpt_path)
 
     print('Init Loaders')
-    loader = get_simple_loader(dataset, collate_fn='MIL_mtl_concat')
+    loader = get_simple_loader(dataset)
     results_dict = summary(model, loader, args)
 
     print('cls_test_error: ', results_dict['cls_test_error'])
