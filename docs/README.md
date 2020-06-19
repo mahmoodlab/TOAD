@@ -24,11 +24,12 @@ ArXiv | Interactive Demo
 We chose to encode each tissue patch with a 1024-dim feature vector using a truncated, pretrained ResNet50. For each WSI, these features are expected to be saved as matrices of torch tensors of size N x 1024, where N is the number of patches from each WSI (varies from slide to slide):
 ```bash
 FEATURES_DIRECTORY/
-	├── slide_1.pt
-	├── slide_2.pt
-	└── ...
+    └──pt_files
+	     ├── slide_1.pt
+         ├── slide_2.pt
+         └── ...
 ```
-Please refer to CLAM for examples on how perform this feature extraction step.
+Please refer to refer to CLAM for examples on how perform this feature extraction step.
 
 ### Datasets
 Datasets are expected to be prepared in a csv format containing at least 5 columns: **case_id**, **slide_id**, **sex**, and labels columns for the slide-level labels: **label**, **site**. Each **case_id** is a unique identifier for a patient, while the **slide_id** is a unique identifier for a slide that correspond to the name of an extracted feature .pt file. This is necessary because often one patient has multiple slides, which might also have different labels. When train/val/test splits are created, we also make sure that slides from the same patient do not go to different splits. The slide ids should be consistent with what was used during the feature extraction step. We provide a dummy example of a dataset csv file in the **dataset_csv** folder, named **dummy_dataset.csv**. You are free to input the labels for your data in any way as long as you specify the appropriate dictionary maps under the **label_dicts** argument of the dataset object's constructor (see below). For demonstration purposes, we used 'M' and 'F' for sex and 'Primary' and 'Metastatic' for the site. Our 18 classes of tumor origins are labaled by 'Lung', 'Breast', 'Colorectal', 'Ovarian', 'Pancreatic', 'Adrenal', 'Melanoma', 'Prostate', 'Renal', 'Bladder', 'Esophagastric',  'Thyroid', 'Head Neck',  'Glioma', 'Germ Cell Tumor', 'Endometrial', 'Cervix', and 'Liver'.
