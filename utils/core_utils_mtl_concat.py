@@ -5,9 +5,7 @@ from utils.utils import *
 import os
 from datasets.dataset_generic import save_splits
 from sklearn.metrics import roc_auc_score
-from models.model_mil import MIL_fc, MIL_fc_mc
-from models.model_clam import CLAM, CLAM_Simple
-from models.model_attention_mil import MIL_Attention_fc_mtl_concat
+from models.model_toad import TOAD_fc_mtl_concat
 from sklearn.metrics import roc_auc_score, roc_curve
 from sklearn.metrics import auc as calc_auc
 from sklearn.preprocessing import label_binarize
@@ -110,24 +108,12 @@ def train(datasets, cur, args):
     print("Validating on {} samples".format(len(val_split)))
     print("Testing on {} samples".format(len(test_split)))
 
-    print('\nInit loss function...', end=' ')
-    if args.bag_loss == 'svm':
-        from topk import SmoothTop1SVM
-        loss_fn = SmoothTop1SVM(n_classes = args.n_classes)
-        if device.type == 'cuda':
-            loss_fn = loss_fn.cuda()
-    else:
-        loss_fn = nn.CrossEntropyLoss()
-    print('Done!')
+    loss_fn = nn.CrossEntropyLoss()
     
     print('\nInit Model...', end=' ')
     model_dict = {"dropout": args.drop_out, 'n_classes': args.n_classes}
     
-    if args.model_type =='attention_mil':
-        model = MIL_Attention_fc_mtl_concat(**model_dict)
-    
-    else:
-        raise NotImplementedError
+    model = TOAD_fc_mtl_concat(**model_dict)
     
     model.relocate()
     print('Done!')
@@ -152,15 +138,9 @@ def train(datasets, cur, args):
     print('Done!')
 
     for epoch in range(args.max_epochs):
-        if args.model_type in ['clam', 'clam_new']:     
-            train_loop_clam(epoch, model, train_loader, optimizer, args.n_classes, args.bag_weight, writer, loss_fn)
-            stop = validate_clam(cur, epoch, model, val_loader, args.n_classes, 
-                early_stopping, writer, loss_fn, args.results_dir)
-        
-        else:
-            train_loop(epoch, model, train_loader, optimizer, args.n_classes, writer, loss_fn)
-            stop = validate(cur, epoch, model, val_loader, args.n_classes, 
-                early_stopping, writer, loss_fn, args.results_dir)
+        train_loop(epoch, model, train_loader, optimizer, args.n_classes, writer, loss_fn)
+        stop = validate(cur, epoch, model, val_loader, args.n_classes, 
+            early_stopping, writer, loss_fn, args.results_dir)
         
         if stop: 
             break
@@ -183,7 +163,7 @@ def train(datasets, cur, args):
         print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
 
         if writer:
-            writer.add_scalar('final/test_class_{}_acc'.format(i), acc, 0)
+            writer.add_scalar('final/test_class_{}_tpr'.format(i), acc, 0)
 
     for i in range(2):
         acc, correct, count = acc_loggers[1].get_summary(i)
@@ -205,87 +185,6 @@ def train(datasets, cur, args):
     
     writer.close()
     return results_dict, cls_test_auc, cls_val_auc, 1-cls_test_error, 1-cls_val_error, site_test_auc, site_val_auc, 1-site_test_error, 1-site_val_error 
-
-
-# def train_loop_clam(epoch, model, loader, optimizer, n_classes, bag_weight, writer = None, loss_fn = None):
-#     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#     model.train()
-#     acc_logger = Accuracy_Logger(n_classes=n_classes)
-#     inst_logger = Accuracy_Logger(n_classes=n_classes)
-    
-#     train_loss = 0.
-#     train_error = 0.
-#     train_inst_loss = 0.
-#     inst_count = 0
-
-#     sample_size = model.k_sample
-
-#     print('\n')
-#     for batch_idx, (data, label) in enumerate(loader):
-#         data, label = data.to(device), label.to(device)
-#         logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True)
-
-#         acc_logger.log(Y_hat, label)
-#         loss = loss_fn(logits, label)
-#         loss_value = loss.item()
-
-#         instance_loss = instance_dict['instance_loss']
-#         inst_count+=1
-#         instance_loss_value = instance_loss.item()
-#         train_inst_loss += instance_loss_value
-
-#         instance_loss = instance_dict['instance_loss']
-#         inst_count+=1
-#         instance_loss_value = instance_loss.item()
-#         train_inst_loss += instance_loss_value
-
-        
-#         total_loss = bag_weight * loss + (1-bag_weight) * instance_loss 
-
-#         p_acc = instance_dict['p_acc']
-#         n_acc = instance_dict['n_acc']
-#         inst_logger.log_batch(sample_size, int(p_acc * sample_size), 1)
-#         inst_logger.log_batch(sample_size, int(n_acc * sample_size), 0)
-
-#         train_loss += loss_value
-#         if (batch_idx + 1) % 5 == 0:
-#             print('batch {}, loss: {:.4f}, instance_loss: {:.4f}, weighted_loss: {:.4f}, '.format(batch_idx, loss_value, instance_loss_value, total_loss.item()) + 
-#                 'inst_p_acc: {:.4f}, inst_n_acc: {:.4f}, label: {}, bag_size: {}'.format(p_acc, n_acc, label.item(), data.size(0)))
-
-#         error = calculate_error(Y_hat, label)
-#         train_error += error
-        
-#         # backward pass
-#         total_loss.backward()
-#         # step
-#         optimizer.step()
-#         optimizer.zero_grad()
-
-#     # calculate loss and error for epoch
-#     train_loss /= len(loader)
-#     train_error /= len(loader)
-    
-#     if inst_count > 0:
-#         train_inst_loss /= inst_count
-#         print('\n')
-#         for i in range(2):
-#             acc, correct, count = inst_logger.get_summary(i)
-#             print('class {} clustering acc {}: correct {}/{}'.format(i, acc, correct, count))
-        
-#             if writer:
-#                 writer.add_scalar('train/inst_class_{}_acc'.format(i), acc, epoch)
-
-#     print('Epoch: {}, train_loss: {:.4f}, train_clustering_loss:  {:.4f}, train_error: {:.4f}'.format(epoch, train_loss, train_inst_loss,  train_error))
-#     for i in range(n_classes):
-#         acc, correct, count = acc_logger.get_summary(i)
-#         print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
-#         if writer:
-#             writer.add_scalar('train/class_{}_acc'.format(i), acc, epoch)
-
-#     if writer:
-#         writer.add_scalar('train/loss', train_loss, epoch)
-#         writer.add_scalar('train/error', train_error, epoch)
-#         writer.add_scalar('train/clustering_loss', train_inst_loss, epoch)
 
 
 def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_fn = None):   
@@ -343,15 +242,15 @@ def train_loop(epoch, model, loader, optimizer, n_classes, writer = None, loss_f
     print('Epoch: {}, cls train_loss: {:.4f}, cls train_error: {:.4f}'.format(epoch, cls_train_loss, cls_train_error))
     for i in range(n_classes):
         acc, correct, count = cls_logger.get_summary(i)
-        print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
+        print('class {}: tpr {}, correct {}/{}'.format(i, acc, correct, count))
         if writer:
-            writer.add_scalar('train/class_{}_acc'.format(i), acc, epoch)
+            writer.add_scalar('train/class_{}_tpr'.format(i), acc, epoch)
 
     for i in range(2):
         acc, correct, count = site_logger.get_summary(i)
-        print('site {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
+        print('site {}: tpr {}, correct {}/{}'.format(i, acc, correct, count))
         if writer:
-            writer.add_scalar('train/site_{}_acc'.format(i), acc, epoch)
+            writer.add_scalar('train/site_{}_tpr'.format(i), acc, epoch)
 
     if writer:
         writer.add_scalar('train/cls_loss', cls_train_loss, epoch)
@@ -416,12 +315,6 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
     site_val_error /= len(loader)
     site_val_loss /= len(loader)
 
-    # if n_classes == 2:
-    #     cls_auc = roc_auc_score(cls_labels, cls_probs[:, 1])
-        
-    # else:
-    #     cls_auc = roc_auc_score(cls_labels, cls_probs, multi_class='ovr')
-
 
     if n_classes == 2:
         cls_auc = roc_auc_score(cls_labels, cls_probs[:, 1])
@@ -452,13 +345,13 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
         ' site val_loss: {:.4f}, site val_error: {:.4f}, site auc: {:.4f}'.format(site_val_loss, site_val_error, site_auc))
     for i in range(n_classes):
         acc, correct, count = cls_logger.get_summary(i)
-        print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
+        print('class {}: tpr {}, correct {}/{}'.format(i, acc, correct, count))
         if writer:
-            writer.add_scalar('val/class_{}_acc'.format(i), acc, epoch)
+            writer.add_scalar('val/class_{}_tpr'.format(i), acc, epoch)
     
     for i in range(2):
         acc, correct, count = site_logger.get_summary(i)
-        print('site {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
+        print('site {}: tpr {}, correct {}/{}'.format(i, acc, correct, count))
         if writer:
             writer.add_scalar('val/site_{}_acc'.format(i), acc, epoch)
      
@@ -472,91 +365,6 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
             return True
 
     return False
-
-# def validate_clam(cur, epoch, model, loader, n_classes,  early_stopping = None, writer = None, loss_fn = None, results_dir = None):
-#     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
-#     model.eval()
-#     acc_logger = Accuracy_Logger(n_classes=n_classes)
-#     inst_logger = Accuracy_Logger(n_classes=n_classes)
-#     val_loss = 0.
-#     val_error = 0.
-
-#     val_inst_loss = 0.
-#     val_inst_acc = 0.
-#     inst_count=0
-    
-#     prob = np.zeros((len(loader), n_classes))
-#     labels = np.zeros(len(loader))
-#     sample_size = model.k_sample
-#     with torch.no_grad():
-#         for batch_idx, (data, label) in enumerate(loader):
-#             data, label = data.to(device), label.to(device)      
-#             logits, Y_prob, Y_hat, _, instance_dict = model(data, label=label, instance_eval=True)
-#             acc_logger.log(Y_hat, label)
-            
-#             loss = loss_fn(logits, label)
-
-#             val_loss += loss.item()
-
-#             instance_loss = instance_dict['instance_loss']
-            
-#             inst_count+=1
-#             instance_loss_value = instance_loss.item()
-#             val_inst_loss += instance_loss_value
-#             p_acc = instance_dict['p_acc']
-#             n_acc = instance_dict['n_acc']
-#             inst_logger.log_batch(sample_size, int(p_acc * sample_size), 1)
-#             inst_logger.log_batch(sample_size, int(n_acc * sample_size), 0)
-
-#             prob[batch_idx] = Y_prob.cpu().numpy()
-#             labels[batch_idx] = label.item()
-            
-#             error = calculate_error(Y_hat, label)
-#             val_error += error
-
-#     val_error /= len(loader)
-#     val_loss /= len(loader)
-
-#     if n_classes == 2:
-#         auc = roc_auc_score(labels, prob[:, 1])
-    
-#     else:
-#         auc = roc_auc_score(labels, prob, multi_class='ovr')
-
-#     print('\nVal Set, val_loss: {:.4f}, val_error: {:.4f}, auc: {:.4f}'.format(val_loss, val_error, auc))
-#     if inst_count > 0:
-#         val_inst_loss /= inst_count
-#         for i in range(2):
-#             acc, correct, count = inst_logger.get_summary(i)
-#             print('Clustering: class {}, acc {}, correct {}/{}'.format(i, acc, correct, count))
-        
-#             if writer:
-#                 writer.add_scalar('val/inst_class_{}_acc'.format(i), acc, epoch)
-    
-    
-#     if writer:
-#         writer.add_scalar('val/loss', val_loss, epoch)
-#         writer.add_scalar('val/auc', auc, epoch)
-#         writer.add_scalar('val/error', val_error, epoch)
-#         writer.add_scalar('val/inst_loss', val_inst_loss, epoch)
-
-
-#     for i in range(n_classes):
-#         acc, correct, count = acc_logger.get_summary(i)
-#         print('class {}: acc {}, correct {}/{}'.format(i, acc, correct, count))
-#         if writer:
-#             writer.add_scalar('val/class_{}_acc'.format(i), acc, epoch)
-     
-
-#     if early_stopping:
-#         assert results_dir
-#         early_stopping(epoch, val_loss, model, ckpt_name = os.path.join(results_dir, "s_{}_checkpoint.pt".format(cur)))
-        
-#         if early_stopping.early_stop:
-#             print("Early stopping")
-#             return True
-
-#     return False
 
 def summary(model, loader, n_classes):
     device=torch.device("cuda" if torch.cuda.is_available() else "cpu")

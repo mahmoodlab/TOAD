@@ -1,17 +1,12 @@
-import pickle
 import torch
-import numpy as np
-import torch.nn as nn
-import pdb
-
-import torch
-import numpy as np
+import torch.optim as optim
 import torch.nn as nn
 from torchvision import transforms
 from torch.utils.data import DataLoader, Sampler, WeightedRandomSampler, RandomSampler, SequentialSampler, sampler
-import torch.optim as optim
-import pdb
 import torch.nn.functional as F
+
+import numpy as np
+import pdb
 import math
 from itertools import islice
 import collections
@@ -32,40 +27,16 @@ class SubsetSequentialSampler(Sampler):
 	def __len__(self):
 		return len(self.indices)
 
-def collate_MIL_mtl_sex(batch):
+def collate_MIL_mtl_concat(batch):
 	img = torch.cat([item[0] for item in batch], dim = 0)
 	label = torch.LongTensor([item[1] for item in batch])
 	site = torch.LongTensor([item[2] for item in batch])
 	sex = torch.LongTensor([item[3] for item in batch])
-	# for item in batch:
-	# 	print(item)
 	return [img, label, site, sex]
 
-def collate_MIL_mtl(batch):
-	img = torch.cat([item[0] for item in batch], dim = 0)
-	label = torch.LongTensor([item[1] for item in batch])
-	site = torch.LongTensor([item[2] for item in batch])
-	# for item in batch:
-	# 	print(item)
-	return [img, label, site]
-
-def collate_MIL(batch):
-	img = torch.cat([item[0] for item in batch], dim = 0)
-	label = torch.LongTensor([item[1] for item in batch])
-	return [img, label]
-
-def collate_features(batch):
-	img = torch.cat([item[0] for item in batch], dim = 0)
-	coords = np.vstack([item[1] for item in batch])
-	return [img, coords]
-
-
-collate_dict = {'MIL': collate_MIL, 'MIL_mtl': collate_MIL_mtl, 'MIL_mtl_sex': collate_MIL_mtl_sex, 'MIL_sex': collate_MIL_mtl}
-
-def get_simple_loader(dataset, batch_size=1, collate_fn='MIL'):
-	kwargs = {'num_workers': 32} if device.type == "cuda" else {}
-	collate = collate_dict[collate_fn]
-	loader = DataLoader(dataset, batch_size=batch_size, sampler = sampler.SequentialSampler(dataset), collate_fn = collate, **kwargs)
+def get_simple_loader(dataset, batch_size=1):
+	kwargs = {'num_workers': 4} if device.type == "cuda" else {}
+	loader = DataLoader(dataset, batch_size=batch_size, sampler = sampler.SequentialSampler(dataset), collate_fn = collate_MIL_mtl_concat, **kwargs)
 	return loader 
 
 def get_split_loader(split_dataset, training = False, testing = False, weighted = False, collate_fn='MIL'):
@@ -79,15 +50,15 @@ def get_split_loader(split_dataset, training = False, testing = False, weighted 
 		if training:
 			if weighted:
 				weights = make_weights_for_balanced_classes_split(split_dataset)
-				loader = DataLoader(split_dataset, batch_size=1, sampler = WeightedRandomSampler(weights, len(weights)), collate_fn = collate, **kwargs)	
+				loader = DataLoader(split_dataset, batch_size=1, sampler = WeightedRandomSampler(weights, len(weights)), collate_fn = collate_MIL_mtl_concat, **kwargs)	
 			else:
-				loader = DataLoader(split_dataset, batch_size=1, sampler = RandomSampler(split_dataset), collate_fn = collate, **kwargs)
+				loader = DataLoader(split_dataset, batch_size=1, sampler = RandomSampler(split_dataset), collate_fn = collate_MIL_mtl_concat, **kwargs)
 		else:
-			loader = DataLoader(split_dataset, batch_size=1, sampler = SequentialSampler(split_dataset), collate_fn = collate, **kwargs)
+			loader = DataLoader(split_dataset, batch_size=1, sampler = SequentialSampler(split_dataset), collate_fn = collate_MIL_mtl_concat, **kwargs)
 	
 	else:
 		ids = np.random.choice(np.arange(len(split_dataset)), int(len(split_dataset)*0.01), replace = False)
-		loader = DataLoader(split_dataset, batch_size=1, sampler = SubsetSequentialSampler(ids), collate_fn = collate, **kwargs )
+		loader = DataLoader(split_dataset, batch_size=1, sampler = SubsetSequentialSampler(ids), collate_fn = collate_MIL_mtl_concat, **kwargs )
 
 	return loader
 
@@ -132,8 +103,6 @@ def generate_split(cls_ids, val_num, test_num, samples, n_splits = 5,
 			all_test_ids.extend(custom_test_ids)
 
 		for c in range(len(val_num)):
-			if c == 38:
-				pdb.set_trace()
 			possible_indices = np.intersect1d(cls_ids[c], indices) #all indices of this class
 			remaining_ids = possible_indices
 
@@ -185,8 +154,3 @@ def initialize_weights(module):
 		if isinstance(m, nn.Linear):
 			nn.init.xavier_normal_(m.weight)
 			m.bias.data.zero_()
-		
-		elif isinstance(m, nn.BatchNorm1d):
-			nn.init.constant_(m.weight, 1)
-			nn.init.constant_(m.bias, 0)
-

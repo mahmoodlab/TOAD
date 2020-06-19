@@ -3,7 +3,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from models.model_attention_mil import MIL_Attention_fc_mtl_concat
+from models.model_toad import TOAD_fc_mtl_concat
 import pdb
 import os
 import pandas as pd
@@ -19,18 +19,7 @@ from sklearn.preprocessing import label_binarize
 def initiate_model(args, ckpt_path=None):
     print('Init Model')    
     model_dict = {"dropout": args.drop_out, 'n_classes': args.n_classes}
-    
-    if args.model_size is not None and args.model_type in ['clam', 'attention_mil', 'clam_simple']:
-        model_dict.update({"size_arg": args.model_size})
-    
-    if args.model_type =='clam':
-        raise NotImplementedError
-    elif args.model_type =='clam_simple':
-        raise NotImplementedError
-    elif args.model_type == 'attention_mil':
-        model = MIL_Attention_fc_mtl_concat(**model_dict)    
-    else: # args.model_type == 'mil'
-        raise NotImplementedError
+    model = TOAD_fc_mtl_concat(**model_dict)    
 
     model.relocate()
     print_network(model)
@@ -45,9 +34,8 @@ def initiate_model(args, ckpt_path=None):
 def eval(dataset, args, ckpt_path):
     model = initiate_model(args, ckpt_path)
 
-    
     print('Init Loaders')
-    loader = get_simple_loader(dataset, collate_fn='MIL_mtl_sex')
+    loader = get_simple_loader(dataset, collate_fn='MIL_mtl_concat')
     results_dict = summary(model, loader, args)
 
     print('cls_test_error: ', results_dict['cls_test_error'])
@@ -55,16 +43,7 @@ def eval(dataset, args, ckpt_path):
     print('site_test_error: ', results_dict['site_test_error'])
     print('site_auc: ', results_dict['site_auc'])
 
-    # for cls_idx in range(len(results_dict['cls_aucs'])):
-    #     print('class {} auc: {}'.format(cls_idx, results_dict['cls_aucs'][cls_idx]))
-
     return model, results_dict
-    # patient_results, test_error, auc, aucs, df
-
-def infer(dataset, args, ckpt_path, class_labels, site_labels):
-    model = initiate_model(args, ckpt_path)
-    df = infer_dataset(model, dataset, args, class_labels, site_labels)
-    return model, df
 
 # Code taken from pytorch/examples for evaluating topk classification on on ImageNet
 def accuracy(output, target, topk=(1,)):
@@ -196,191 +175,3 @@ def summary(model, loader, args):
         inference_results.update({'top{}_acc'.format(topk[k]): topk_accs[k].item()})
 
     return inference_results
-
-
-def infer_dataset(model, dataset, args, class_labels, site_labels, k=5):
-    model.eval()
-    all_probs_cls = np.zeros((len(dataset), k))
-    all_probs_site = np.zeros((len(dataset),2))
-
-    all_preds_cls = np.zeros((len(dataset), k))
-    all_preds_cls_str = np.full((len(dataset), k), ' ', dtype=object)
-    all_preds_site = np.full((len(dataset)), ' ', dtype=object)
-
-    all_lung_probs = np.zeros((len(dataset)))
-    slide_ids = dataset.slide_data['slide_id']
-    for batch_idx in range(len(dataset)):
-        data, sex = dataset[batch_idx]
-        data = data.to(device)
-        sex = torch.Tensor([sex]).float().to(device)
-        with torch.no_grad():
-            results_dict = model(data, sex)
-
-        Y_prob, Y_hat = results_dict['Y_prob'], results_dict['Y_hat']
-        site_prob, site_hat = results_dict['site_prob'], results_dict['site_hat']
-        del results_dict
-        probs, ids = torch.topk(Y_prob, k)
-        probs = probs.cpu().numpy()
-        site_prob = site_prob.cpu().numpy()
-        ids = ids.cpu().numpy()
-        all_probs_cls[batch_idx] = probs
-        all_preds_cls[batch_idx] = ids
-        all_preds_cls_str[batch_idx] = np.array(class_labels)[ids]
-
-        all_probs_site[batch_idx] = site_prob
-        all_preds_site[batch_idx] = np.array(site_labels)[site_hat.item()]
-
-        all_lung_probs[batch_idx] = Y_prob.view(-1).cpu().numpy()[0]
-        
-    del data
-    pdb.set_trace()
-    results_dict = {'slide_id': slide_ids}
-    for c in range(k):
-        results_dict.update({'Pred_{}'.format(c): all_preds_cls_str[:, c]})
-        results_dict.update({'p_{}'.format(c): all_probs_cls[:, c]})
-
-    results_dict.update({'Site_Pred': all_preds_site, 'Site_p': all_probs_site[:, 1]})
-    results_dict.update({'cls_p_0':  all_lung_probs})
-    df = pd.DataFrame(results_dict)
-    return df
-
-# def infer_dataset(model, dataset, args, class_labels, k=3):
-#     model.eval()
-
-#     all_probs = np.zeros((len(dataset), args.n_classes))
-#     all_preds = np.zeros(len(dataset))
-#     all_str_preds = np.full(len(dataset), ' ', dtype=object)
-
-#     slide_ids = dataset.slide_data
-#     for batch_idx, data in enumerate(dataset):
-#         data = data.to(device)
-#         with torch.no_grad():
-#             logits, Y_prob, Y_hat, _, results_dict = model(data)
-        
-#         probs = Y_prob.cpu().numpy()
-#         all_probs[batch_idx] = probs
-#         all_preds[batch_idx] = Y_hat.item()
-#         all_str_preds[batch_idx] = class_labels[Y_hat.item()]
-#     del data
-
-#     results_dict = {'slide_id': slide_ids, 'Prediction': all_str_preds, 'Y_hat': all_preds}
-#     for c in range(args.n_classes):
-#         results_dict.update({'p_{}_{}'.format(c, class_labels[c]): all_probs[:,c]})
-#     df = pd.DataFrame(results_dict)
-#     return df
-
-def compute_features(dataset, args, ckpt_path, save_dir, model=None, feature_dim=513):
-    if model is None:
-        model = initiate_model(args, ckpt_path)
-
-    names = dataset.get_list(np.arange(len(dataset))).values
-    if args.return_topk > 0:
-        file_path = os.path.join(save_dir, 'features.h5')
-    else:
-        file_path = os.path.join(save_dir, 'features_patch.h5')
-
-    if args.return_topk > 1:
-        length = len(dataset) * args.return_topk
-        feature_dim = feature_dim - 1
-        names = np.tile(names[:,np.newaxis], (1,args.return_topk)).reshape(length)
-    else:
-        length = len(dataset) 
-
-    initialize_features_hdf5_file(file_path, length, feature_dim=feature_dim, names=names)
-    for i in range(len(dataset)):
-        print("Progress: {}/{}".format(i, len(dataset)))
-        save_features(dataset, i, model, args, file_path)
-
-def save_features(dataset, idx, model, args, save_file_path):
-    name = dataset.get_list(idx)
-    print(name)
-    features, label, site, sex = dataset[idx]
-    sex = torch.tensor([sex]).float().to(device)
-    features = features.to(device)
-    with torch.no_grad():
-        results_dict = model(features, sex, return_features=True, return_topk=args.return_topk) 
-        Y_prob, Y_hat = results_dict['Y_prob'], results_dict['Y_hat']
-        site_prob, site_hat = results_dict['site_prob'], results_dict['site_hat']
-
-        if args.return_topk < 0:
-            bag_feat = results_dict['features'][0]
-            site_feat = results_dict['features'][1]
-            bag_feat = bag_feat.view(1, -1).cpu().numpy()
-            site_feat = site_feat.view(1, -1).cpu().numpy()
-        else:
-            cls_feat = results_dict['cls_features'].cpu().numpy()
-            site_feat = results_dict['site_features'].cpu().numpy()
-
-    del results_dict 
-    del features
-    Y_hat = Y_hat.item()
-    Y_prob = Y_prob.view(-1).cpu().numpy()
-    site_hat = site_hat.item()
-    site_prob = site_prob.view(-1).cpu().numpy()
-
-    with h5py.File(save_file_path, 'r+') as file:
-        print('label', label)
-        if args.return_topk < 0:
-            file['features'][idx, :] = bag_feat
-            file['site_features'][idx, :] = site_feat
-            file['label'][idx] = label
-            file['sex'][idx] = int(sex.item())
-            file['Y_hat'][idx] = Y_hat
-            file['Y_prob'][idx] = Y_prob[Y_hat]
-            file['site'][idx] = site
-            file['site_hat'][idx] = site_hat
-            file['site_prob'][idx] = site_prob[1]
-        else:
-            file['features'][idx*args.return_topk:(idx+1)*args.return_topk, :] = cls_feat
-            file['site_features'][idx*args.return_topk:(idx+1)*args.return_topk, :] = site_feat
-            file['label'][idx*args.return_topk:(idx+1)*args.return_topk] = np.repeat(label, args.return_topk)
-            file['sex'][idx*args.return_topk:(idx+1)*args.return_topk] = np.repeat(int(sex.item()), args.return_topk) 
-            file['Y_hat'][idx*args.return_topk:(idx+1)*args.return_topk] = np.repeat(Y_hat, args.return_topk) 
-            file['Y_prob'][idx*args.return_topk:(idx+1)*args.return_topk] = np.repeat(Y_prob[Y_hat], args.return_topk) 
-            file['site'][idx*args.return_topk:(idx+1)*args.return_topk] = np.repeat(site, args.return_topk)
-            file['site_hat'][idx*args.return_topk:(idx+1)*args.return_topk]= np.repeat(site_hat, args.return_topk)
-            file['site_prob'][idx*args.return_topk:(idx+1)*args.return_topk] = np.repeat(site_prob[1], args.return_topk)
-
-def initialize_features_hdf5_file(file_path, length, feature_dim=512, names = None):
-    
-    file = h5py.File(file_path, "w")
-
-    dset = file.create_dataset('features', 
-                                shape=(length, feature_dim), chunks=(1, feature_dim), dtype=np.float32)
-
-    dset = file.create_dataset('site_features', 
-                                shape=(length, feature_dim), chunks=(1, feature_dim), dtype=np.float32)
-
-    # if names is not None:
-    #     names = np.array(names, dtype='S')
-    #     dset.attrs['names'] = names
-    if names is not None:
-        dt = h5py.string_dtype()
-        label_dset = file.create_dataset('names', 
-                                        shape=(length, ), chunks=(1, ), dtype=dt)
-        file['names'][:] = names
-    
-    label_dset = file.create_dataset('label', 
-                                        shape=(length, ), chunks=(1, ), dtype=np.int32)
-
-    pred_dset = file.create_dataset('Y_hat', 
-                                        shape=(length, ), chunks=(1, ), dtype=np.int32)
-
-    prob_dset = file.create_dataset('Y_prob', 
-                                        shape=(length, ), chunks=(1, ), dtype=np.float32)
-
-    label_dset = file.create_dataset('sex', 
-                                        shape=(length, ), chunks=(1, ), dtype=np.int32)
-
-    label_dset = file.create_dataset('site', 
-                                        shape=(length, ), chunks=(1, ), dtype=np.int32)
-
-    site_pred_dset = file.create_dataset('site_hat', 
-                                        shape=(length, ), chunks=(1, ), dtype=np.int32)
-
-    site_prob_dset = file.create_dataset('site_prob', 
-                                        shape=(length, ), chunks=(1, ), dtype=np.float32)
-
-    file.close()
-    return file_path
-

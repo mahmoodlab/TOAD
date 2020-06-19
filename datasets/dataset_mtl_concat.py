@@ -8,10 +8,8 @@ import re
 import pdb
 import pickle
 from scipy import stats
-
 from torch.utils.data import Dataset
 import h5py
-
 from utils.utils import generate_split, nth
 
 
@@ -28,11 +26,10 @@ def save_splits(split_datasets, column_keys, filename, boolean_style=False):
 		df = pd.DataFrame(bool_array, index=index, columns = ['train', 'val', 'test'])
 
 	df.to_csv(filename)
-	print()
 
 class Generic_WSI_MTL_Dataset(Dataset):
 	def __init__(self,
-		csv_path = 'dataset_csv/ccrcc_clean.csv',
+		csv_path = None,
 		shuffle = False, 
 		seed = 7, 
 		print_info = True,
@@ -44,7 +41,7 @@ class Generic_WSI_MTL_Dataset(Dataset):
 		):
 		"""
 		Args:
-			csv_file (string): Path to the csv file with annotations.
+			csv_file (string): Path to the dataset csv file.
 			shuffle (boolean): Whether to shuffle
 			seed (int): random seed for shuffling the data
 			print_info (boolean): Whether to print a summary of the dataset
