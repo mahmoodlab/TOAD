@@ -31,7 +31,7 @@ FEATURES_DIRECTORY/
 Please refer to CLAM for examples on how perform this feature extraction step.
 
 ### Datasets
-Datasets are expected to be prepared in a csv format containing at least 3 columns: **case_id**, **slide_id**, **sex**, and labels columns for the slide-level labels: **label**, **site**. Each **case_id** is a unique identifier for a patient, while the **slide_id** is a unique identifier for a slide that correspond to the name of an extracted feature .pt file. This is necessary because often one patient has multiple slides, which might also have different labels. When train/val/test splits are created, we also make sure that slides from the same patient do not go to different splits. The slide ids should be consistent with what was used during the feature extraction step. We provide a dummy example of a dataset csv file in the **dataset_csv** folder, named **dummy_dataset.csv**. You are free to input the labels for your data in any way as long as you specify the appropriate dictionary maps under the **label_dicts** argument of the dataset object's constructor (see below). For demonstration purposes, we used 'M' and 'F' for sex and 'Primary' and 'Metastatic' for the site. Our 18 classes of tumor origins are specified by 'Lung', 'Breast', 'Colorectal', 'Ovarian', 'Pancreatic', 'Adrenal', 'Melanoma', 'Prostate', 'Renal', 'Bladder', 'Esophagastric',  'Thyroid', 'Head Neck',  'Glioma', 'Germ Cell Tumor', 'Endometrial', 'Cervix', and 'Liver'.
+Datasets are expected to be prepared in a csv format containing at least 5 columns: **case_id**, **slide_id**, **sex**, and labels columns for the slide-level labels: **label**, **site**. Each **case_id** is a unique identifier for a patient, while the **slide_id** is a unique identifier for a slide that correspond to the name of an extracted feature .pt file. This is necessary because often one patient has multiple slides, which might also have different labels. When train/val/test splits are created, we also make sure that slides from the same patient do not go to different splits. The slide ids should be consistent with what was used during the feature extraction step. We provide a dummy example of a dataset csv file in the **dataset_csv** folder, named **dummy_dataset.csv**. You are free to input the labels for your data in any way as long as you specify the appropriate dictionary maps under the **label_dicts** argument of the dataset object's constructor (see below). For demonstration purposes, we used 'M' and 'F' for sex and 'Primary' and 'Metastatic' for the site. Our 18 classes of tumor origins are labaled by 'Lung', 'Breast', 'Colorectal', 'Ovarian', 'Pancreatic', 'Adrenal', 'Melanoma', 'Prostate', 'Renal', 'Bladder', 'Esophagastric',  'Thyroid', 'Head Neck',  'Glioma', 'Germ Cell Tumor', 'Endometrial', 'Cervix', and 'Liver'.
 
 Dataset objects used for actual training/validation/testing can be constructed using the **Generic_MIL_MTL_Dataset** Class (defined in **datasets/dataset_mtl_concat.py**). Examples of such dataset objects passed to the models can be found in both **main_mtl_concat.py** and **eval_mtl_concat.py**. 
 
@@ -69,27 +69,30 @@ parser.add_argument('--task', type=str, choices=['dummy_mtl_concat'])
 ```
 
 ### Training Splits
-For evaluating the algorithm's performance, multiple folds (e.g. 10-fold) of train/val/test splits can be used. Example 10-fold 80/10/10 splits for camelyon and tcga-kidney, using 50% of training data can be found under the **splits** folder. These splits can be automatically generated using the create_splits_seq.py script with minimal modification just like with **main.py**. For example, camelyon splits with 75% of training data can be created by calling:
+For evaluating the algorithm's performance, we randomly partitioned our dataset into training, validation and test splits. An example 70/10/20 splits for the dummy dataset can be fould in **splits/dummy_mtl_concat**. These splits can be automatically generated using the create_splits.py script with minimal modification just like with **main_mtl_concat.py**. For example, the dummy splits were created by calling:
  
 ``` shell
-python create_splits_seq.py --task camelyon_40x_cv --seed 1 --label_frac 0.75 --k 10
+python create_splits.py --task dummy_mtl_concat --seed 1 --k 1
 ```
-The script uses the **Generic_WSI_Classification_Dataset** Class for which the constructor expects the same arguments as 
-**Generic_MIL_Dataset** (without the data_dir argument). For details, please refer to the dataset definition in **datasets/dataset_generic.py**
+The script uses the **Generic_WSI_MTL_Dataset** Class for which the constructor expects the same arguments as 
+**Generic_MIL_MTL_Dataset** (without the data_dir argument). For details, please refer to the dataset definition in **datasets/dataset_mtl_concat.py**
 
 ### Training
 ``` shell
-CUDA_VISIBLE_DEVICES=0,1 python main_mtl_concat.py --drop_out --early_stopping --lr 2e-4 --k 1 --exp_code study_v2_mtl_sex_100  --task study_v2_mtl_sex  --log_data 
+CUDA_VISIBLE_DEVICES=0,1,2,3 python main_mtl_concat.py --drop_out --early_stopping --lr 2e-4 --k 1 --exp_code dummy_mtl_sex_100  --task dummy_mtl_concat  --log_data 
 ```
+The number of GPUs to use can be specified using CUDA_VISIBLE_DEVICES, in the example command, the 1st, 2nd, 3rd and 4th GPU are used (4 in total). Other arguments such as --drop_out, --early_stopping, --lr, --reg, and --max_epochs can be specified to customize your experiments. 
+
+For information on each argument, see:
+``` shell
+python main_mtl_concat.py -h
+```
+
 By default results will be saved to **results/exp_code** corresponding to the exp_code input argument from the user. If tensorboard logging is enabled (with the arugment toggle --log_data), the user can go into the results folder for the particular experiment, run:
 ``` shell
 tensorboard --logdir=.
 ```
 This should open a browser window and show the logged training/validation statistics in real time. 
-For information on each argument, see:
-``` shell
-python main_mtl_concat.py -h
-```
 
 ### Evaluation 
 User also has the option of using the evluation script to test the performances of trained models. Examples corresponding to the models trained above are provided below:
@@ -97,12 +100,12 @@ User also has the option of using the evluation script to test the performances 
 CUDA_VISIBLE_DEVICES=0,1 python eval_mtl_concat.py --drop_out --k 1 --models_exp_code study_v2_mtl_sex_100_s1 --save_exp_code study_v2_mtl_sex_100_s1_all --task study_v2_mtl_sex  --results_dir results
 ```
 
-Information on each commandline argument, see:
+For information on each commandline argument, see:
 ``` shell
-python eval.py -h
+python eval_mtl_concat.py -h
 ```
 
-To test trained models on your own custom datasets, first add them into **eval_mtl_concat.py**, the same way as you do for **main_mtl_concat.py**.
+To test trained models on your own custom datasets, you can add them into **eval_mtl_concat.py**, the same way as you do for **main_mtl_concat.py**.
 
 <!-- <img src="fig-gh3.jpg" width="1000px" align="center" />	 -->
 
