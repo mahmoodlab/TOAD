@@ -44,30 +44,29 @@ device=torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 encoding_size = 1024
 
-if not args.summarize:
-    args.save_dir = os.path.join('./eval_results', 'EVAL_' + str(args.save_exp_code))
-    args.models_dir = os.path.join(args.results_dir, str(args.models_exp_code))
+args.save_dir = os.path.join('./eval_results', 'EVAL_' + str(args.save_exp_code))
+args.models_dir = os.path.join(args.results_dir, str(args.models_exp_code))
 
-    os.makedirs(args.save_dir, exist_ok=True)
+os.makedirs(args.save_dir, exist_ok=True)
 
-    if args.splits_dir is None:
-        args.splits_dir = args.models_dir
+if args.splits_dir is None:
+    args.splits_dir = args.models_dir
 
-    assert os.path.isdir(args.models_dir)
-    assert os.path.isdir(args.splits_dir)
+assert os.path.isdir(args.models_dir)
+assert os.path.isdir(args.splits_dir)
 
-    settings = {'task': args.task,
-                'split': args.split,
-                'save_dir': args.save_dir, 
-                'models_dir': args.models_dir,
-                'drop_out': args.drop_out,
-                'micro_avg': args.micro_average}
+settings = {'task': args.task,
+            'split': args.split,
+            'save_dir': args.save_dir, 
+            'models_dir': args.models_dir,
+            'drop_out': args.drop_out,
+            'micro_avg': args.micro_average}
 
-    with open(args.save_dir + '/eval_experiment_{}.txt'.format(args.save_exp_code), 'w') as f:
-        print(settings, file=f)
-    f.close()
+with open(args.save_dir + '/eval_experiment_{}.txt'.format(args.save_exp_code), 'w') as f:
+    print(settings, file=f)
+f.close()
 
-    print(settings)
+print(settings)
 
 
 if args.task == 'dummy_mtl_concat':
