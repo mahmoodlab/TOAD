@@ -124,9 +124,9 @@ def train(datasets, cur, args):
     print('Done!')
     
     print('\nInit Loaders...', end=' ')
-    train_loader = get_split_loader(train_split, training=True, testing = args.testing, weighted = args.weighted_sample, collate_fn='MIL_mtl_sex')
-    val_loader = get_split_loader(val_split, collate_fn='MIL_mtl_sex')
-    test_loader = get_split_loader(test_split, collate_fn='MIL_mtl_sex')
+    train_loader = get_split_loader(train_split, training=True, testing = args.testing, weighted = args.weighted_sample)
+    val_loader = get_split_loader(val_split)
+    test_loader = get_split_loader(test_split)
     print('Done!')
 
     print('\nSetup EarlyStopping...', end=' ')
