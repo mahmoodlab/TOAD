@@ -122,7 +122,6 @@ elif args.task == 'study_v2_mtl_sex':
                                         'TCGA-THCA':os.path.join(args.data_root_dir,'tcga_thyroid_20x_features'),
                                         'TCGA-READ':os.path.join(args.data_root_dir,'tcga_rectum_20x_features')},
                             shuffle = False, 
-                            seed = args.seed, 
                             print_info = True,
                             label_dicts = [{'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
                                                                 'Pancreatic':4, 'Adrenal':5, 
