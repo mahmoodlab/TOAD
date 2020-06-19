@@ -94,7 +94,7 @@ python main.py -h
 ### Evaluation 
 User also has the option of using the evluation script to test the performances of trained models. Examples corresponding to the models trained above are provided below:
 ``` shell
-CUDA_VISIBLE_DEVICES=0,1 python eval.py --drop_out --k 1 --models_exp_code study_v2_mtl_sex_100_s1 --save_exp_code study_v2_mtl_sex_100_s1_all --task study_v2_mtl_sex  --results_dir results
+CUDA_VISIBLE_DEVICES=0,1 python eval_mtl_concat.py --drop_out --k 1 --models_exp_code study_v2_mtl_sex_100_s1 --save_exp_code study_v2_mtl_sex_100_s1_all --task study_v2_mtl_sex  --results_dir results
 ```
 
 Information on each commandline argument, see:
