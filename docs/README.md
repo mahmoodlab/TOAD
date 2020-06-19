@@ -25,7 +25,7 @@ We chose to encode each tissue patch with a 1024-dim feature vector using a trun
 ```bash
 FEATURES_DIRECTORY/
     └──pt_files/
-	    ├── slide_1.pt
+        ├── slide_1.pt
         ├── slide_2.pt
         └── ...
 ```
