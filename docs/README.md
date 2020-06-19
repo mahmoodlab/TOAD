@@ -21,14 +21,16 @@ ArXiv | Interactive Demo
 <!-- <img src="CLAM2.jpg" width="1000px" align="center" /> -->
 
 ### Data Preparation
-We chose to encode each tissue patch with a 1024-dim feature vector using a truncated, pretrained ResNet50. For each WSI, these features are expected to be saved as matrices of torch tensors of size N x 1024, where N is the number of patches from each WSI (varies from slide to slide):
+We chose to encode each tissue patch with a 1024-dim feature vector using a truncated, pretrained ResNet50. For each WSI, these features are expected to be saved as matrices of torch tensors of size N x 1024, where N is the number of patches from each WSI (varies from slide to slide). The following folder structure is assumed:
 ```bash
-FEATURES_DIRECTORY/
-    └──pt_files/
+DATA_ROOT_DIR/
+    └──DATASET_DIR/
         ├── slide_1.pt
         ├── slide_2.pt
         └── ...
 ```
+DATA_ROOT_DIR is the base directory of all datasets (e.g. the directory to your SSD). DATASET_DIR is the name of the folder containing data specific to one experiment and features from each slide is stored as a .pt file inside this folder.
+
 Please refer to refer to CLAM for examples on how perform this feature extraction step.
 
 ### Datasets
@@ -41,7 +43,7 @@ For training, look under main.py:
 if args.task == 'dummy_mtl_concat':
     args.n_classes=18
     dataset = Generic_MIL_MTL_Dataset(csv_path = 'dataset_csv/dummy_dataset.csv',
-                            data_dir= 'Oncopanel Primary':os.path.join(args.data_root_dir,'DUMMY_DATA_DIR')
+                            data_dir= 'Oncopanel Primary':os.path.join(args.data_root_dir,'DATASET_DIR')
                             shuffle = False, 
                             seed = args.seed, 
                             print_info = True,
