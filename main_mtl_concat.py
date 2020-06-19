@@ -141,7 +141,7 @@ print('\nLoad Dataset')
 if args.task == 'dummy_mtl_concat':
     args.n_classes=18
     dataset = Generic_MIL_MTL_Dataset(csv_path = 'dataset_csv/dummy_dataset.csv',
-                            data_dir= 'Oncopanel Primary':os.path.join(args.data_root_dir,'DUMMY_DATA_DIR'),
+                            data_dir= os.path.join(args.data_root_dir,'DUMMY_DATA_DIR'),
                             shuffle = False, 
                             seed = args.seed, 
                             print_info = True,

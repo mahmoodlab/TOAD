@@ -78,7 +78,7 @@ if not args.summarize:
 if args.task == 'dummy_mtl_concat':
     args.n_classes=18
     dataset = Generic_MIL_MTL_Dataset(csv_path = 'dataset_csv/dummy_dataset.csv',
-                            data_dir= 'Oncopanel Primary':os.path.join(args.data_root_dir,'dummy_data_dir')
+                            data_dir= os.path.join(args.data_root_dir,'dummy_data_dir'),
                             shuffle = False, 
                             print_info = True,
                             label_dicts = [{'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
