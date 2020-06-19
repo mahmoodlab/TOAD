@@ -80,7 +80,6 @@ if args.task == 'dummy_mtl_concat':
     dataset = Generic_MIL_MTL_Dataset(csv_path = 'dataset_csv/dummy_dataset.csv',
                             data_dir= 'Oncopanel Primary':os.path.join(args.data_root_dir,'dummy_data_dir')
                             shuffle = False, 
-                            seed = args.seed, 
                             print_info = True,
                             label_dicts = [{'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
                                                                 'Pancreatic':4, 'Adrenal':5, 

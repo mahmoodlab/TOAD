@@ -1,0 +1,23 @@
+,train,val,test
+Lung,2797,395,806
+Breast,2291,324,650
+Colorectal,1715,244,489
+Ovarian,776,110,221
+Pancreatic,634,90,180
+Adrenal,196,35,43
+Melanoma,686,96,197
+Prostate,782,112,212
+Renal,972,152,279
+Bladder,757,105,208
+Esophagastric,1050,148,300
+Thyroid,710,100,200
+Head Neck,631,89,176
+Glioma,1646,225,459
+Germ Cell Tumor,262,30,63
+Endometrial,1017,142,287
+Cervix,257,39,75
+Liver,316,44,89
+Primary,14375,2045,4016
+Metastatic Recurrence,3120,435,918
+F,9531,1381,2733
+M,7964,1099,2201

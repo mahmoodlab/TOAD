@@ -66,7 +66,7 @@ class Generic_WSI_MTL_Dataset(Dataset):
 		self.label_dicts = label_dicts
 		self.num_classes=[len(set(label_dict.values())) for label_dict in self.label_dicts]
 
-		slide_data = self.df_prep(slide_data, self.label_dicts, ignore, self.label_cols)
+		slide_data = self.df_prep(slide_data, self.label_dicts, self.label_cols)
 		###shuffle data
 		if shuffle:
 			np.random.seed(seed)

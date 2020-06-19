@@ -21,39 +21,25 @@ parser.add_argument('--overwrite', default=False, action='store_true')
 args = parser.parse_args()
 
 
-if args.task == 'study_v2':
-	dataset = Generic_WSI_Classification_Dataset(csv_path = 'dataset_csv/study_v2_clean.csv',
-													shuffle = False, 
-													seed = args.seed, 
-													print_info = True,
-													label_dict = {'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
-																'Pancreatic':4, 'Adrenal':5, 
-																'Melanoma':6, 'Prostate':7, 'Renal':8, 'Bladder':9, 
-																'Esophagastric':10,  'Thyroid':11,
-																'Head Neck':12,  'Glioma':13, 
-																'Germ Cell Tumor':14, 'Endometrial': 15, 'Cervix': 16, 'Liver': 17},
-													patient_strat= True,
-													multi_site=True,
-													ignore=[])
+if args.task == 'dummy_mtl_concat':
+    args.n_classes=18
+    dataset = Generic_WSI_MTL_Dataset(csv_path = 'dataset_csv/dummy_dataset.csv',
+                            shuffle = False, 
+                            seed = args.seed, 
+                            print_info = True,
+                            label_dicts = [{'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
+                                                                'Pancreatic':4, 'Adrenal':5, 
+                                                                'Melanoma':6, 'Prostate':7, 'Renal':8, 'Bladder':9, 
+                                                                'Esophagastric':10,  'Thyroid':11,
+                                                                'Head Neck':12,  'Glioma':13, 
+                                                                'Germ Cell Tumor':14, 'Endometrial': 15, 'Cervix': 16, 'Liver': 17},
+                                            {'Primary':0,  'Metastatic':1},
+                                            {'F':0, 'M':1}],
+                            label_cols = ['label', 'site', 'sex'],
+                            patient_strat= False)
 
-elif args.task == 'study_v2_mtl':
-	dataset = Generic_WSI_MTL_Dataset(csv_path = 'dataset_csv/study_v2_no_osh_clean.csv',
-													shuffle = False, 
-													seed = args.seed, 
-													print_info = True,
-													label_dicts = [{'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
-																'Pancreatic':4, 'Adrenal':5, 
-																'Melanoma':6, 'Prostate':7, 'Renal':8, 'Bladder':9, 
-																'Esophagastric':10,  'Thyroid':11,
-																'Head Neck':12,  'Glioma':13, 
-																'Germ Cell Tumor':14, 'Endometrial': 15, 'Cervix': 16, 'Liver': 17},
-																 {'Primary':0, 'Metastatic Recurrence':1, 'TCGA Primary Tumor':0, 'TCGA Metastatic':1}],
-													label_cols = ['label', 'site'],
-													patient_strat= True,
-													multi_site=True,
-													ignore=[])
 
-elif args.task == 'study_v2_no_osh_summary':
+elif args.task == 'study_v2_mtl_sex':
 	dataset = Generic_WSI_MTL_Dataset(csv_path = 'dataset_csv/study_v2_no_osh_clean.csv',
 									shuffle = False, 
 									seed = args.seed, 
