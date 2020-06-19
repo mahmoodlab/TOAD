@@ -36,7 +36,7 @@ parser.add_argument('--fold', type=int, default=-1, help='single fold to evaluat
 parser.add_argument('--micro_average', action='store_true', default=False, 
                     help='use micro_average instead of macro_avearge for multiclass AUC')
 parser.add_argument('--split', type=str, choices=['train', 'val', 'test', 'all'], default='test')
-parser.add_argument('--task', type=str, choices=['dummy_mtl_concat'])
+parser.add_argument('--task', type=str, choices=['dummy_mtl_concat', 'study_v2_mtl_sex'])
 
 args = parser.parse_args()
 
@@ -87,6 +87,50 @@ if args.task == 'dummy_mtl_concat':
                             label_cols = ['label', 'site', 'sex'],
                             patient_strat= False,
                             ignore=[])
+
+elif args.task == 'study_v2_mtl_sex':
+    args.n_classes=18
+    dataset = Generic_MIL_MTL_Dataset(csv_path = 'dataset_csv/study_v2_no_osh_clean.csv',
+                            data_dir= {'Oncopanel Primary':os.path.join(args.data_root_dir,'oncopanel_met_primary'),
+                                       'Oncopanel Metastatic':os.path.join(args.data_root_dir,'oncopanel_met_primary'),
+                                       'TCGA-KIRC':os.path.join(args.data_root_dir,'tcga_kidney_20x_features'),
+                                        'TCGA-KICH':os.path.join(args.data_root_dir,'tcga_kidney_20x_features'),
+                                        'TCGA-KIRP':os.path.join(args.data_root_dir,'tcga_kidney_20x_features'),
+                                        'TCGA-LGG':os.path.join(args.data_root_dir,'tcga_lgg_20x_features'),
+                                        'TCGA-GBM':os.path.join(args.data_root_dir,'tcga_gbm_20x_features'),
+                                        'TCGA-PRAD':os.path.join(args.data_root_dir,'tcga_prostate_20x_features'),
+                                        'TCGA-PAAD':os.path.join(args.data_root_dir,'tcga_pancreas_20x_features'),
+                                        'TCGA-HNSC':os.path.join(args.data_root_dir,'tcga_head_and_neck_20x_features'),
+                                        'TCGA-LUAD':os.path.join(args.data_root_dir,'tcga_lung_20x_features'),
+                                        'TCGA-LUSC':os.path.join(args.data_root_dir,'tcga_lung_20x_features'),
+                                        'TCGA-BRCA':os.path.join(args.data_root_dir,'tcga_breast_20x_features'),
+                                        'TCGA-ACC':os.path.join(args.data_root_dir,'tcga_adrenal_20x_features'),
+                                        'TCGA-COAD':os.path.join(args.data_root_dir,'tcga_colorectal_20x_features'),
+                                        'TCGA-CESC':os.path.join(args.data_root_dir,'tcga_cervical_20x_features'),
+                                        'TCGA-LIHC':os.path.join(args.data_root_dir,'tcga_liver_20x_features'),
+                                        'TCGA-OV':os.path.join(args.data_root_dir,'tcga_ovary_20x_features'),
+                                        'TCGA-SKCM':os.path.join(args.data_root_dir,'tcga_skin_20x_features'),
+                                        'TCGA-ESCA':os.path.join(args.data_root_dir,'tcga_esophagus_20x_features'),
+                                        'TCGA-STAD':os.path.join(args.data_root_dir,'tcga_stomach_20x_features'),
+                                        'TCGA-TGCT':os.path.join(args.data_root_dir,'tcga_germ_cell_20x_features'),
+                                        'TCGA-UCEC':os.path.join(args.data_root_dir,'tcga_endometrial_20x_features'),
+                                        'TCGA-BLCA':os.path.join(args.data_root_dir,'tcga_bladder_20x_features'),
+                                        'TCGA-THCA':os.path.join(args.data_root_dir,'tcga_thyroid_20x_features'),
+                                        'TCGA-READ':os.path.join(args.data_root_dir,'tcga_rectum_20x_features')},
+                            shuffle = False, 
+                            print_info = True,
+                            label_dicts = [{'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
+                                                                'Pancreatic':4, 'Adrenal':5, 
+                                                                'Melanoma':6, 'Prostate':7, 'Renal':8, 'Bladder':9, 
+                                                                'Esophagastric':10,  'Thyroid':11,
+                                                                'Head Neck':12,  'Glioma':13, 
+                                                                'Germ Cell Tumor':14, 'Endometrial': 15, 'Cervix': 16, 'Liver': 17},
+                                            {'Primary':0, 'Metastatic Recurrence':1, 'TCGA Primary Tumor':0, 'TCGA Metastatic':1},
+                                            {'F':0, 'M':1}],
+                            label_cols = ['label', 'site', 'sex'],
+                            patient_strat= False)
+
+
 else:
     raise NotImplementedError
 
