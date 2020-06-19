@@ -37,11 +37,9 @@ class Generic_WSI_MTL_Dataset(Dataset):
 		seed = 7, 
 		print_info = True,
 		label_dicts = [{}, {}, {}],
-		ignore=[],
 		patient_strat=False,
 		label_cols = ['label', 'site', 'sex'],
 		patient_voting = 'max',
-		multi_site = False,
 		filter_dict = {},
 		):
 		"""
@@ -50,8 +48,10 @@ class Generic_WSI_MTL_Dataset(Dataset):
 			shuffle (boolean): Whether to shuffle
 			seed (int): random seed for shuffling the data
 			print_info (boolean): Whether to print a summary of the dataset
-			label_dict (dict): Dictionary with key, value pairs for converting str labels to int
-			ignore (list): List containing class labels to ignore
+			label_dicts (list of dict): List of dictionaries with key, value pairs for converting str labels to int for each label column
+			label_cols (list): List of column headings to use as labels and map with label_dicts
+			filter_dict (dict): Dictionary of key, value pairs to exclude from the dataset where key represents a column name, 
+								and value is a list of values to ignore in that column
 			patient_voting (string): Rule for deciding the patient-level label
 		"""
 		self.custom_test_ids = None
@@ -66,13 +66,10 @@ class Generic_WSI_MTL_Dataset(Dataset):
 		slide_data = pd.read_csv(csv_path)
 		slide_data = self.filter_df(slide_data, filter_dict)
 
-		if multi_site:
-			label_dicts[0] = self.init_multi_site_label_dict(slide_data, label_dicts[0])
-
 		self.label_dicts = label_dicts
 		self.num_classes=[len(set(label_dict.values())) for label_dict in self.label_dicts]
 
-		slide_data = self.df_prep(slide_data, self.label_dicts, ignore, self.label_cols, multi_site)
+		slide_data = self.df_prep(slide_data, self.label_dicts, ignore, self.label_cols)
 		###shuffle data
 		if shuffle:
 			np.random.seed(seed)
@@ -116,20 +113,6 @@ class Generic_WSI_MTL_Dataset(Dataset):
 		self.patient_data = {'case_id':patients, 'label':np.array(patient_labels)}
 
 	@staticmethod
-	def init_multi_site_label_dict(slide_data, label_dict):
-		print('initiating multi-source label dictionary')
-		sites = np.unique(slide_data['site'].values)
-		multi_site_dict = {}
-		num_classes = len(label_dict)
-		for key, val in label_dict.items():
-			for idx, site in enumerate(sites):
-				site_key = (key, site)
-				site_val = val+idx*num_classes
-				multi_site_dict.update({site_key:site_val})
-				print('{} : {}'.format(site_key, site_val))
-		return multi_site_dict
-
-	@staticmethod
 	def filter_df(df, filter_dict={}):
 		if len(filter_dict) > 0:
 			filter_mask = np.full(len(df), True, bool)
@@ -141,18 +124,13 @@ class Generic_WSI_MTL_Dataset(Dataset):
 		return df
 
 	@staticmethod
-	def df_prep(data, label_dicts, ignore, label_cols, multi_site=False):
+	def df_prep(data, label_dicts, label_cols):
 		if label_cols[0] != 'label':
 			data['label'] = data[label_cols[0]].copy()
 
-		mask = data['label'].isin(ignore)
-		data = data[~mask]
 		data.reset_index(drop=True, inplace=True)
 		for i in data.index:
 			key = data.loc[i, 'label']
-			if multi_site:
-				site = data.loc[i, 'site']
-				key = (key, site)
 			data.at[i, 'label'] = label_dicts[0][key]
 
 		for idx, (label_dict, label_col) in enumerate(zip(label_dicts[1:], label_cols[1:])):
@@ -256,11 +234,6 @@ class Generic_WSI_MTL_Dataset(Dataset):
 
 			df_slice = self.slide_data[mask].dropna().reset_index(drop=True)
 			split = Generic_Split(df_slice, data_dir=self.data_dir, num_classes=self.num_classes, label_cols=self.label_cols)
-				# df_slice = self.slide_data.set_index('slide_id')
-				# pdb.set_trace()
-				# df_slice = df_slice.loc[df_slice.index.intersection(split.tolist())].dropna()
-				# df_slice = df_slice.reset_index().rename({'index': 'slide_id'})
-	
 			
 		else:
 			split = None
@@ -285,8 +258,6 @@ class Generic_WSI_MTL_Dataset(Dataset):
 
 
 	def return_splits(self, from_id=True, csv_path=None):
-
-
 		if from_id:
 			if len(self.train_ids) > 0:
 				train_data = self.slide_data.loc[self.train_ids].reset_index(drop=True)
@@ -340,53 +311,23 @@ class Generic_WSI_MTL_Dataset(Dataset):
 				df = pd.DataFrame(np.full((len(index), len(columns)), 0, dtype=np.int32), index= index,
 							columns= columns)
 				dfs.append(df)
-		
-
-
 
 		for task in range(len(self.label_dicts)):
-			count = len(self.train_ids)
-			print('\nnumber of training samples: {}'.format(count))
 			index = [list(self.label_dicts[task].keys())[list(self.label_dicts[task].values()).index(i)] for i in range(self.num_classes[task])]
-			labels = self.getlabel(self.train_ids, task)
-			unique, counts = np.unique(labels, return_counts=True)
-			missing_classes = np.setdiff1d(np.arange(self.num_classes[task]), unique)
-			unique = np.append(unique, missing_classes)
-			counts = np.append(counts, np.full(len(missing_classes), 0))
-			inds = unique.argsort()
-			counts = counts[inds]
-			for u in range(len(unique)):
-				print('number of samples in cls {}: {}'.format(unique[u], counts[u]))
-				if return_descriptor:
-					dfs[task].loc[index[u], 'train'] = counts[u]
-		
-			count = len(self.val_ids)
-			print('\nnumber of val samples: {}'.format(count))
-			labels = self.getlabel(self.val_ids, task)
-			unique, counts = np.unique(labels, return_counts=True)
-			missing_classes = np.setdiff1d(np.arange(self.num_classes[task]), unique)
-			unique = np.append(unique, missing_classes)
-			counts = np.append(counts, np.full(len(missing_classes), 0))
-			inds = unique.argsort()
-			counts = counts[inds]
-			for u in range(len(unique)):
-				print('number of samples in cls {}: {}'.format(unique[u], counts[u]))
-				if return_descriptor:
-					dfs[task].loc[index[u], 'val'] = counts[u]
-
-			count = len(self.test_ids)
-			print('\nnumber of test samples: {}'.format(count))
-			labels = self.getlabel(self.test_ids, task)
-			unique, counts = np.unique(labels, return_counts=True)
-			missing_classes = np.setdiff1d(np.arange(self.num_classes[task]), unique)
-			unique = np.append(unique, missing_classes)
-			counts = np.append(counts, np.full(len(missing_classes), 0))
-			inds = unique.argsort()
-			counts = counts[inds]
-			for u in range(len(unique)):
-				print('number of samples in cls {}: {}'.format(unique[u], counts[u]))
-				if return_descriptor:
-					dfs[task].loc[index[u], 'test'] = counts[u]
+			for split_name, ids in zip(['train', 'val', 'test'], [self.train_ids, self.val_ids, self.test_ids]):
+				count = len(ids)
+				print('\nnumber of {} samples: {}'.format(split_name, count))
+				labels = self.getlabel(ids, task)
+				unique, counts = np.unique(labels, return_counts=True)
+				missing_classes = np.setdiff1d(np.arange(self.num_classes[task]), unique)
+				unique = np.append(unique, missing_classes)
+				counts = np.append(counts, np.full(len(missing_classes), 0))
+				inds = unique.argsort()
+				counts = counts[inds]
+				for u in range(len(unique)):
+					print('number of samples in cls {}: {}'.format(unique[u], counts[u]))
+					if return_descriptor:
+						dfs[task].loc[index[u], split_name] = counts[u]
 
 		assert len(np.intersect1d(self.train_ids, self.test_ids)) == 0
 		assert len(np.intersect1d(self.train_ids, self.val_ids)) == 0
@@ -406,46 +347,6 @@ class Generic_WSI_MTL_Dataset(Dataset):
 		df = pd.concat([df_tr, df_v, df_t], axis=1) 
 		df.to_csv(filename, index = False)
 
-
-# class Generic_MIL_MTL_Dataset(Generic_WSI_MTL_Dataset):
-# 	def __init__(self,
-# 		data_dir, 
-# 		**kwargs):
-# 		super(Generic_MIL_MTL_Dataset, self).__init__(**kwargs)
-# 		self.data_dir = data_dir
-# 		self.use_h5 = False
-
-# 	def load_from_h5(self, toggle):
-# 		self.use_h5 = toggle
-
-# 	def __getitem__(self, idx):
-# 		slide_id = self.slide_data['slide_id'][idx]
-# 		label = self.slide_data['label'][idx]
-# 		site = self.slide_data[self.label_cols[1]][idx]
-# 		if type(self.data_dir) == dict:
-# 			source = self.slide_data['source'][idx]
-# 			data_dir = self.data_dir[source]
-# 		else:
-# 			data_dir = self.data_dir
-
-# 		if not self.use_h5:
-# 			if self.data_dir:
-# 				full_path = os.path.join(data_dir, 'pt_files', '{}.pt'.format(slide_id))
-# 				features = torch.load(full_path)
-# 				return features, label, site
-			
-# 			else:
-# 				return slide_id, label, site
-
-# 		else:
-# 			full_path = os.path.join(data_dir,'h5_files','{}.h5'.format(slide_id))
-# 			with h5py.File(full_path,'r') as hdf5_file:
-# 				features = hdf5_file['features'][:]
-# 				coords = hdf5_file['coords'][:]
-
-# 			features = torch.from_numpy(features)
-# 			return features, label, site, coords
-
 class Generic_MIL_MTL_Dataset(Generic_WSI_MTL_Dataset):
 	def __init__(self,
 		data_dir, 
@@ -453,9 +354,6 @@ class Generic_MIL_MTL_Dataset(Generic_WSI_MTL_Dataset):
 		super(Generic_MIL_MTL_Dataset, self).__init__(**kwargs)
 		self.data_dir = data_dir
 		self.use_h5 = False
-
-	def infer_only(self, toggle):
-		self.infer = toggle
 
 	def load_from_h5(self, toggle):
 		self.use_h5 = toggle
@@ -472,20 +370,14 @@ class Generic_MIL_MTL_Dataset(Generic_WSI_MTL_Dataset):
 			data_dir = self.data_dir
 
 		if not self.use_h5:
-			if self.data_dir:
-				full_path = os.path.join(data_dir, 'pt_files', '{}.pt'.format(slide_id))
-				features = torch.load(full_path)
+			full_path = os.path.join(data_dir, 'pt_files', '{}.pt'.format(slide_id))
+			features = torch.load(full_path)
 
-				if self.infer:
-					return features, sex
-				else:
-					return features, label, site, sex
+			return features, label, site, sex
 			
-			else:
-				return slide_id, label, site, sex
 
 		else:
-			full_path = os.path.join(data_dir,'h5_files','{}.h5'.format(slide_id))
+			full_path = os.path.join(data_dir, 'h5_files','{}.h5'.format(slide_id))
 			with h5py.File(full_path,'r') as hdf5_file:
 				features = hdf5_file['features'][:]
 				coords = hdf5_file['coords'][:]
@@ -509,32 +401,3 @@ class Generic_Split(Generic_MIL_MTL_Dataset):
 
 	def __len__(self):
 		return len(self.slide_data)
-		
-
-class Generic_WSI_Inference_Dataset(Dataset):
-	def __init__(self,
-		data_dir,
-		csv_path = None,
-		print_info = True,
-		sex_label_dict = {'F': 0, 'M': 1}
-		):
-		self.data_dir = data_dir
-		self.print_info = print_info
-
-		if csv_path is not None:
-			data = pd.read_csv(csv_path)
-			self.slide_data = data
-			self.slide_data['sex'] = self.slide_data['sex'].map(sex_label_dict)
-
-		if print_info:
-			print('total number of slides to infer: ', len(self.slide_data))
-
-	def __len__(self):
-		return len(self.slide_data)
-
-	def __getitem__(self, idx):
-		slide_file = self.slide_data['slide_id'][idx]+'.pt'
-		sex = self.slide_data['sex'][idx]
-		full_path = os.path.join(self.data_dir, 'pt_files',slide_file)
-		features = torch.load(full_path)
-		return features, sex
