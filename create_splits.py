@@ -76,7 +76,6 @@ if __name__ == '__main__':
 			custom_test_ids = dataset.sample_held_out(test_num=test_num)
 		else:
 			custom_test_ids = None
-
 		for lf in label_fracs:
 			if args.split_code is not None:
 				split_dir = 'splits/'+ str(args.split_code) + '_{}'.format(int(lf * 100))
@@ -102,7 +101,6 @@ if __name__ == '__main__':
 					dataset.train_ids = ids[0]
 					dataset.val_ids = ids[1]
 					dataset.test_ids = ids[2]
-
 				else:
 					dataset.set_splits()
 

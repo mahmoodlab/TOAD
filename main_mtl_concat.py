@@ -141,16 +141,17 @@ print('\nLoad Dataset')
 if args.task == 'dummy_mtl_concat':
     args.n_classes=18
     dataset = Generic_MIL_MTL_Dataset(csv_path = 'dataset_csv/dummy_dataset.csv',
-                            data_dir= 'Oncopanel Primary':os.path.join(args.data_root_dir,'dummy_data_dir')
+                            data_dir= 'Oncopanel Primary':os.path.join(args.data_root_dir,'DUMMY_DATA_DIR')
                             shuffle = False, 
                             seed = args.seed, 
                             print_info = True,
                             label_dicts = [{'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
-                                                                'Pancreatic':4, 'Adrenal':5, 
-                                                                'Melanoma':6, 'Prostate':7, 'Renal':8, 'Bladder':9, 
-                                                                'Esophagastric':10,  'Thyroid':11,
-                                                                'Head Neck':12,  'Glioma':13, 
-                                                                'Germ Cell Tumor':14, 'Endometrial': 15, 'Cervix': 16, 'Liver': 17},
+                                            'Pancreatic':4, 'Adrenal':5, 
+                                             'Melanoma':6, 'Prostate':7, 'Renal':8, 'Bladder':9, 
+                                             'Esophagastric':10,  'Thyroid':11,
+                                             'Head Neck':12,  'Glioma':13, 
+                                             'Germ Cell Tumor':14, 'Endometrial': 15, 
+                                             'Cervix': 16, 'Liver': 17},
                                             {'Primary':0,  'Metastatic':1},
                                             {'F':0, 'M':1}],
                             label_cols = ['label', 'site', 'sex'],
