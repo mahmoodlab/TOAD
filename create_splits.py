@@ -15,11 +15,10 @@ parser.add_argument('--k', type=int, default=10,
 parser.add_argument('--hold_out_test', action='store_true', default=False,
 										help='fraction to hold out (default: 0)')
 parser.add_argument('--split_code', type=str, default=None)
-parser.add_argument('--task', type=str, choices=['study_v2_mtl_sex', 'dummy_mtl_concat'])
+parser.add_argument('--task', type=str, choices=['dummy_mtl_concat'])
 parser.add_argument('--overwrite', default=False, action='store_true')
 
 args = parser.parse_args()
-
 
 if args.task == 'dummy_mtl_concat':
     args.n_classes=18
@@ -37,23 +36,6 @@ if args.task == 'dummy_mtl_concat':
                                             {'F':0, 'M':1}],
                             label_cols = ['label', 'site', 'sex'],
                             patient_strat= False)
-
-
-elif args.task == 'study_v2_mtl_sex':
-	dataset = Generic_WSI_MTL_Dataset(csv_path = 'dataset_csv/study_v2_no_osh_clean.csv',
-									shuffle = False, 
-									seed = args.seed, 
-									print_info = True,
-									label_dicts = [{'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
-												'Pancreatic':4, 'Adrenal':5, 
-												'Melanoma':6, 'Prostate':7, 'Renal':8, 'Bladder':9, 
-												'Esophagastric':10,  'Thyroid':11,
-												'Head Neck':12,  'Glioma':13, 
-												'Germ Cell Tumor':14, 'Endometrial': 15, 'Cervix': 16, 'Liver': 17},
-												{'Primary':0, 'Metastatic Recurrence':1, 'TCGA Primary Tumor':0, 'TCGA Metastatic':1},
-												{'F':0, 'M':1}],
-									label_cols = ['label', 'site', 'sex'],
-									patient_strat= True)
 
          
 else:
