@@ -1,6 +1,7 @@
-# TOAD <img src="UNP.jpg" width="280px" align="right" />
+
+CLAM <img src="clam-logo.png" width="280px" align="right" />
 ===========
-Deep Learning-based Computational Pathology Predicts Origins for Cancers of Unknown Primary.
+Data Efficient and Weakly Supervised Computational Pathology on Whole Slide Images.
 
 ArXiv | Interactive Demo 
 
