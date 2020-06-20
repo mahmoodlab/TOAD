@@ -1,6 +1,6 @@
 <!-- CLAM <img src="logo.jpg" width="350px" align="right" /> -->
 ===========
-Tumor Origin Assessement via Deep-learning on Whole Slide Images.
+# TOAD
 
 ArXiv | Interactive Demo 
 
