@@ -1,5 +1,5 @@
 <!-- CLAM <img src="logo.jpg" width="350px" align="right" /> -->
-# TOAD
+# TOAD <img src="clam-logo.png" width="280px" align="right" />
 
 ArXiv | Interactive Demo 
 
