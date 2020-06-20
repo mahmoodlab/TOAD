@@ -1,5 +1,5 @@
 
-CLAM <img src="clam-logo.png" width="280px" align="right" />
+TOAD <img src="UNP.jpg" width="280px" align="right" />
 ===========
 Data Efficient and Weakly Supervised Computational Pathology on Whole Slide Images.
 
