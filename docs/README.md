@@ -1,4 +1,3 @@
-<!-- CLAM <img src="logo.jpg" width="350px" align="right" /> -->
 # TOAD <img src="UNP.jpg" width="280px" align="right" />
 ===========
 Deep Learning-based Computational Pathology Predicts Origins for Cancers of Unknown Primary.
