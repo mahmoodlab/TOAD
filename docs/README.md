@@ -1,5 +1,4 @@
 <!-- CLAM <img src="logo.jpg" width="350px" align="right" /> -->
-===========
 # TOAD
 
 ArXiv | Interactive Demo 
