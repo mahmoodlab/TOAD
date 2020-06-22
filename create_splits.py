@@ -64,14 +64,7 @@ if __name__ == '__main__':
 			else:
 				split_dir = 'splits/'+ str(args.task) + '_{}'.format(int(lf * 100))
 			
-			if os.path.isdir(split_dir) and not args.overwrite:
-				print('split already exist, summarizing splits')
-				save_generated_splits = False
-				pass
-			else:
-				print('split does not exist yet, create new splits')
-				save_generated_splits = True
-				dataset.create_splits(k = args.k, val_num = val_num, test_num = test_num, label_frac=lf, custom_test_ids=custom_test_ids)
+			dataset.create_splits(k = args.k, val_num = val_num, test_num = test_num, label_frac=lf, custom_test_ids=custom_test_ids)
 
 			os.makedirs(split_dir, exist_ok=True)
 			for i in range(args.k):
@@ -89,10 +82,9 @@ if __name__ == '__main__':
 				descriptor_df = dataset.test_split_gen(return_descriptor=True)
 				descriptor_df.to_csv(os.path.join(split_dir, 'splits_{}_descriptor.csv'.format(i)))
 				
-				if save_generated_splits:
-					splits = dataset.return_splits(from_id=True)
-					save_splits(splits, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(i)))
-					save_splits(splits, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}_bool.csv'.format(i)), boolean_style=True)
+				splits = dataset.return_splits(from_id=True)
+				save_splits(splits, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}.csv'.format(i)))
+				save_splits(splits, ['train', 'val', 'test'], os.path.join(split_dir, 'splits_{}_bool.csv'.format(i)), boolean_style=True)
 				
 
 
