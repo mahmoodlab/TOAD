@@ -5,7 +5,7 @@ TOAD 🐸 <img src="UNP.jpg" width="280px" align="right" />
 
 ArXiv | Interactive Demo 
 
-*TL;DR: In this work we propose to use weakly-supervised, multi-class and multi-task computational pathology to determine origins for cancers of unknown primary (CUP). CUPs represent 1-3% of all cancers and have poor prognosis because modern cancer treatment is specific to the primary. We present TOAD for predicting the primary origin of these tumors from H&E images without using immunohistochemistry, molecular testing or clinical correlation. Our model is trained on 17,486 gigapixel whole slide images (WSIs) from 18 different cancers and tested on an internal set of 4,900 (WSIs) an external set of 662 WSIs from 200+ institutions and clinically validated on 717 CUP cases originiating in 120 different medical centers.*
+*TL;DR: In this work we propose to use weakly-supervised, multi-class and multi-task computational pathology to determine origins for cancers of unknown primary (CUP). CUPs represent 1-3% of all cancers and have poor prognosis because modern cancer treatment is specific to the primary. We present TOAD for predicting the primary origin of these tumors from H&E images without using immunohistochemistry, molecular testing or clinical correlation. Our model is trained on 17,486 gigapixel whole slide images (WSIs) from 18 different cancers and tested on an internal set of 4,932 (WSIs) an external set of 662 WSIs from 200+ institutions and clinically validated on 717 CUP cases originiating in 120 different medical centers.*
 
 © [Mahmood Lab](http://www.mahmoodlab.org) - This code is made available under the GPLv3 License and is available for non-commercial academic purposes. 
 
