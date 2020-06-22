@@ -17,7 +17,7 @@ ArXiv | Interactive Demo
 * Python (3.7.5), h5py (2.10.0), matplotlib (3.1.1), numpy (1.17.3), opencv-python (4.1.1.26), openslide-python (1.1.1), openslides (3.4.1), pandas (0.25.3), pillow (6.2.1), PyTorch (1.3.1), scikit-learn (0.22.1), scipy (1.3.1), tensorflow (1.14.0), tensorboardx (1.9), torchvision (0.4.2).
 
 ### Installation Guide for Linux (using anaconda)
-[Installation Guide](INSTALLATION.md)
+[Installation Guide](https://github.com/mahmoodlab/CLAM/blob/master/docs/INSTALLATION.md)
 
 <!-- ## Weakly-Supervised Learning using Slide-Level Labels with CLAM -->
 
@@ -34,7 +34,7 @@ DATA_ROOT_DIR/
 ```
 DATA_ROOT_DIR is the base directory of all datasets (e.g. the directory to your SSD). DATASET_DIR is the name of the folder containing data specific to one experiment and features from each slide is stored as a .pt file inside this folder.
 
-Please refer to refer to CLAM for examples on how perform this feature extraction step.
+Please refer to refer to [CLAM](https://github.com/mahmoodlab/CLAM) for examples on how perform this feature extraction step.
 
 ### Datasets
 Datasets are expected to be prepared in a csv format containing at least 5 columns: **case_id**, **slide_id**, **sex**, and labels columns for the slide-level labels: **label**, **site**. Each **case_id** is a unique identifier for a patient, while the **slide_id** is a unique identifier for a slide that correspond to the name of an extracted feature .pt file. This is necessary because often one patient has multiple slides, which might also have different labels. When train/val/test splits are created, we also make sure that slides from the same patient do not go to different splits. The slide ids should be consistent with what was used during the feature extraction step. We provide a dummy example of a dataset csv file in the **dataset_csv** folder, named **dummy_dataset.csv**. You are free to input the labels for your data in any way as long as you specify the appropriate dictionary maps under the **label_dicts** argument of the dataset object's constructor (see below). For demonstration purposes, we used 'M' and 'F' for sex and 'Primary' and 'Metastatic' for the site. Our 18 classes of tumor origins are labaled by 'Lung', 'Breast', 'Colorectal', 'Ovarian', 'Pancreatic', 'Adrenal', 'Melanoma', 'Prostate', 'Renal', 'Bladder', 'Esophagastric',  'Thyroid', 'Head Neck',  'Glioma', 'Germ Cell Tumor', 'Endometrial', 'Cervix', and 'Liver'.
