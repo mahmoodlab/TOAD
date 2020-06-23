@@ -5,7 +5,7 @@ TOAD 🐸 <img src="UNP.jpg" width="280px" align="right" />
 
 ArXiv | Interactive Demo 
 
-*TL;DR: In this work we propose to use weakly-supervised, multi-class and multi-task computational pathology to determine origins for cancers of unknown primary (CUP). CUPs represent 1-3% of all cancers and have poor prognosis because modern cancer treatment is specific to the primary. We present TOAD for predicting the primary origin of these tumors from H&E images without using immunohistochemistry, molecular testing or clinical correlation. Our model is trained on 17,486 gigapixel whole slide images (WSIs) from 18 different cancers and tested on an internal set of 4,932 (WSIs) an external set of 662 WSIs from 200+ institutions and clinically validated on 717 CUP cases originiating in 120 different medical centers.*
+*TL;DR: In this work we propose to use weakly-supervised, multi-class and multi-task computational pathology to determine origins for cancers of unknown primary (CUP). CUPs represent 1-3% of all cancers and have poor prognosis because modern cancer treatment is specific to the primary. We present TOAD for predicting the primary origin of these tumors from H&E images without using immunohistochemistry, molecular testing or clinical correlation. Our model is trained on 17,486 gigapixel whole slide images (WSIs) from 18 different cancers and tested on an internal set of 4,932 (WSIs) an external set of 662 WSIs from 200+ institutions and clinically validated on 717 CUP cases originiating in 150+ different medical centers.*
 
 © [Mahmood Lab](http://www.mahmoodlab.org) - This code is made available under the GPLv3 License and is available for non-commercial academic purposes. 
 
@@ -18,10 +18,6 @@ ArXiv | Interactive Demo
 
 ### Installation Guide for Linux (using anaconda)
 [Installation Guide](https://github.com/mahmoodlab/CLAM/blob/master/docs/INSTALLATION.md)
-
-<!-- ## Weakly-Supervised Learning using Slide-Level Labels with CLAM -->
-
-<!-- <img src="CLAM2.jpg" width="1000px" align="center" /> -->
 
 ### Data Preparation
 We chose to encode each tissue patch with a 1024-dim feature vector using a truncated, pretrained ResNet50. For each WSI, these features are expected to be saved as matrices of torch tensors of size N x 1024, where N is the number of patches from each WSI (varies from slide to slide). The following folder structure is assumed:
@@ -112,8 +108,6 @@ python eval_mtl_concat.py -h
 ```
 
 To test trained models on your own custom datasets, you can add them into **eval_mtl_concat.py**, the same way as you do for **main_mtl_concat.py**.
-
-<!-- <img src="fig-gh3.jpg" width="1000px" align="center" />	 -->
 
 ## Issues
 - Please report all issues on the public forum.
