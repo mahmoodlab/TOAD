@@ -37,7 +37,7 @@ DATA_ROOT_DIR is the base directory of all datasets (e.g. the directory to your 
 Please refer to refer to [CLAM](https://github.com/mahmoodlab/CLAM) for examples on how perform this feature extraction step.
 
 ### Datasets
-Datasets are expected to be prepared in a csv format containing at least 5 columns: **case_id**, **slide_id**, **sex**, and labels columns for the slide-level labels: **label**, **site**. Each **case_id** is a unique identifier for a patient, while the **slide_id** is a unique identifier for a slide that correspond to the name of an extracted feature .pt file. This is necessary because often one patient has multiple slides, which might also have different labels. When train/val/test splits are created, we also make sure that slides from the same patient do not go to different splits. The slide ids should be consistent with what was used during the feature extraction step. We provide a dummy example of a dataset csv file in the **dataset_csv** folder, named **dummy_dataset.csv**. You are free to input the labels for your data in any way as long as you specify the appropriate dictionary maps under the **label_dicts** argument of the dataset object's constructor (see below). For demonstration purposes, we used 'M' and 'F' for sex and 'Primary' and 'Metastatic' for the site. Our 18 classes of tumor origins are labaled by 'Lung', 'Breast', 'Colorectal', 'Ovarian', 'Pancreatic', 'Adrenal', 'Melanoma', 'Prostate', 'Renal', 'Bladder', 'Esophagastric',  'Thyroid', 'Head Neck',  'Glioma', 'Germ Cell Tumor', 'Endometrial', 'Cervix', and 'Liver'.
+Datasets are expected to be prepared in a csv format containing at least 5 columns: **case_id**, **slide_id**, **sex**, and labels columns for the slide-level labels: **label**, **site**. Each **case_id** is a unique identifier for a patient, while the **slide_id** is a unique identifier for a slide that correspond to the name of an extracted feature .pt file. This is necessary because often one patient has multiple slides, which might also have different labels. When train/val/test splits are created, we also make sure that slides from the same patient do not go to different splits. The slide ids should be consistent with what was used during the feature extraction step. We provide a dummy example of a dataset csv file in the **dataset_csv** folder, named **dummy_dataset.csv**. You are free to input the labels for your data in any way as long as you specify the appropriate dictionary maps under the **label_dicts** argument of the dataset object's constructor (see below). For demonstration purposes, we used 'M' and 'F' for sex and 'Primary' and 'Metastatic' for the site. Our 18 classes of tumor origins are labaled by 'Lung', 'Breast', 'Colorectal', 'Ovarian', 'Pancreatic', 'Adrenal', 'Skin', 'Prostate', 'Renal', 'Bladder', 'Esophagogastric',  'Thyroid', 'Head Neck',  'Glioma', 'Germ Cell', 'Endometrial', 'Cervix', and 'Liver'.
 
 Dataset objects used for actual training/validation/testing can be constructed using the **Generic_MIL_MTL_Dataset** Class (defined in **datasets/dataset_mtl_concat.py**). Examples of such dataset objects passed to the models can be found in both **main_mtl_concat.py** and **eval_mtl_concat.py**. 
 
@@ -52,10 +52,10 @@ if args.task == 'dummy_mtl_concat':
                             print_info = True,
                             label_dicts = [{'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
                                             'Pancreatic':4, 'Adrenal':5, 
-                                             'Melanoma':6, 'Prostate':7, 'Renal':8, 'Bladder':9, 
-                                             'Esophagastric':10,  'Thyroid':11,
+                                             'Skin':6, 'Prostate':7, 'Renal':8, 'Bladder':9, 
+                                             'Esophagogastric':10,  'Thyroid':11,
                                              'Head Neck':12,  'Glioma':13, 
-                                             'Germ Cell Tumor':14, 'Endometrial': 15, 
+                                             'Germ Cell':14, 'Endometrial': 15, 
                                              'Cervix': 16, 'Liver': 17},
                                             {'Primary':0,  'Metastatic':1},
                                             {'F':0, 'M':1}],
