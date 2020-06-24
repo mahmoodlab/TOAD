@@ -16,7 +16,6 @@ parser.add_argument('--hold_out_test', action='store_true', default=False,
 										help='fraction to hold out (default: 0)')
 parser.add_argument('--split_code', type=str, default=None)
 parser.add_argument('--task', type=str, choices=['dummy_mtl_concat'])
-parser.add_argument('--overwrite', default=False, action='store_true')
 
 args = parser.parse_args()
 

@@ -264,7 +264,6 @@ def validate(cur, epoch, model, loader, n_classes, early_stopping = None, writer
     model.eval()
     cls_logger = Accuracy_Logger(n_classes=n_classes)
     site_logger = Accuracy_Logger(n_classes=2)
-    # loader.dataset.update_mode(True)
     cls_val_error = 0.
     cls_val_loss = 0.
     site_val_error = 0.

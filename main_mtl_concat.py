@@ -79,8 +79,7 @@ def main(args):
 
 # Training settings
 parser = argparse.ArgumentParser(description='Configurations for WSI Training')
-parser.add_argument('--data_root_dir', type=str, default='/media/fedshyvana/ssd1', 
-                    help='data directory')
+parser.add_argument('--data_root_dir', type=str, help='data directory')
 parser.add_argument('--max_epochs', type=int, default=200,
                     help='maximum number of epochs to train (default: 200)')
 parser.add_argument('--lr', type=float, default=1e-4,

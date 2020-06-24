@@ -5,7 +5,7 @@ TOAD 🐸 <img src="UNP.jpg" width="280px" align="right" />
 
 ArXiv | Interactive Demo 
 
-*TL;DR: In this work we propose to use weakly-supervised, multi-class and multi-task computational pathology to determine origins for cancers of unknown primary (CUP). CUPs represent 1-3% of all cancers and have poor prognosis because modern cancer treatment is specific to the primary. We present TOAD for predicting the primary origin of these tumors from H&E images without using immunohistochemistry, molecular testing or clinical correlation. Our model is trained on 17,486 gigapixel whole slide images (WSIs) from 18 different cancers and tested on an internal set of 4,932 (WSIs) an external set of 662 WSIs from 200+ institutions and clinically validated on 717 CUP cases originiating in 150+ different medical centers.*
+*TL;DR: In this work we propose to use weakly-supervised multi-task computational pathology to aid the differential diagnosis for cancers of unknown primary (CUP). CUPs represent 1-3% of all cancers and have poor prognosis because modern cancer treatment is specific to the primary. We present TOAD for predicting the primary origin of these tumors from H&E images without using immunohistochemistry, molecular testing or clinical correlation. Our model is trained on 17,486 gigapixel whole slide images (WSIs) from 18 different primary cancer origins and tested on an internal set of 4,932 (WSIs) and an external set of 662 WSIs from 200+ institutions. Furthermore, we curated a large multi-institutional dataset of 717 CUP cases originiating in 150+ different medical centers and validated our model against a subset of 290 cases for which a primary differential was assigned, often by relying on extensive IHC testing and clinical work ups.*
 
 © [Mahmood Lab](http://www.mahmoodlab.org) - This code is made available under the GPLv3 License and is available for non-commercial academic purposes. 
 
@@ -81,7 +81,7 @@ The script uses the **Generic_WSI_MTL_Dataset** Class for which the constructor 
 
 ### Training
 ``` shell
-CUDA_VISIBLE_DEVICES=0,1,2,3 python main_mtl_concat.py --drop_out --early_stopping --lr 2e-4 --k 1 --exp_code dummy_mtl_sex_100  --task dummy_mtl_concat  --log_data 
+CUDA_VISIBLE_DEVICES=0,1,2,3 python main_mtl_concat.py --drop_out --early_stopping --lr 2e-4 --k 1 --exp_code dummy_mtl_sex_100  --task dummy_mtl_concat  --log_data  --data_root_dir DATA_ROOT_DIR
 ```
 The number of GPUs to use can be specified using CUDA_VISIBLE_DEVICES, in the example command, the 1st, 2nd, 3rd and 4th GPU are used (4 in total). Other arguments such as --drop_out, --early_stopping, --lr, --reg, and --max_epochs can be specified to customize your experiments. 
 
@@ -99,7 +99,7 @@ This should open a browser window and show the logged training/validation statis
 ### Evaluation 
 User also has the option of using the evluation script to test the performances of trained models. Examples corresponding to the models trained above are provided below:
 ``` shell
-CUDA_VISIBLE_DEVICES=0,1 python eval_mtl_concat.py --drop_out --k 1 --models_exp_code study_v2_mtl_sex_100_s1 --save_exp_code study_v2_mtl_sex_100_s1_all --task study_v2_mtl_sex  --results_dir results
+CUDA_VISIBLE_DEVICES=0,1 python eval_mtl_concat.py --drop_out --k 1 --models_exp_code study_v2_mtl_sex_100_s1 --save_exp_code study_v2_mtl_sex_100_s1_all --task study_v2_mtl_sex  --results_dir results --data_root_dir DATA_ROOT_DIR
 ```
 
 For information on each commandline argument, see:
