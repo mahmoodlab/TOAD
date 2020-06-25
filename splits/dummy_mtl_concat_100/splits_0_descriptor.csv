@@ -1,0 +1,23 @@
+,train,val,test
+Lung,147,19,38
+Breast,163,21,42
+Colorectal,86,12,24
+Ovarian,15,2,4
+Pancreatic,33,3,7
+Adrenal,44,1,2
+Melanoma,63,8,17
+Prostate,57,8,16
+Renal,137,17,35
+Bladder,66,7,15
+Esophagastric,84,10,21
+Thyroid,74,10,20
+Head Neck,69,9,18
+Glioma,267,17,34
+Germ Cell Tumor,39,2,5
+Endometrial,92,10,20
+Cervix,42,5,10
+Liver,54,7,14
+Primary,1020,108,219
+Metastatic,512,60,123
+F,746,82,183
+M,786,86,159
