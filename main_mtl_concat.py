@@ -145,7 +145,7 @@ if args.task == 'dummy_mtl_concat':
                             seed = args.seed, 
                             print_info = True,
                             label_dicts = [{'Lung':0, 'Breast':1, 'Colorectal':2, 'Ovarian':3, 
-                                            'Pancreatic':4, 'Adrenal':5, 
+                                            'Pancreatobiliary':4, 'Adrenal':5, 
                                              'Skin':6, 'Prostate':7, 'Renal':8, 'Bladder':9, 
                                              'Esophagogastric':10,  'Thyroid':11,
                                              'Head Neck':12,  'Glioma':13, 
