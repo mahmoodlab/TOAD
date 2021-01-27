@@ -2,7 +2,6 @@
 TOAD 🐸 <img src="UNP.jpg" width="280px" align="right" />
 ===========
 ### Deep Learning-based Computational Pathology Predicts Origins for Cancers of Unknown Primary
-*Addressing 'What is it and where did it come from?' in Pathology via Deep Learning.*
 
 [ArXiv](https://arxiv.org/abs/2006.13932)| [Interactive Demo](http://toad.mahmoodlab.org) 
 
