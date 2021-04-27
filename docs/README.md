@@ -27,11 +27,16 @@ We chose to encode each tissue patch with a 1024-dim feature vector using a trun
 ```bash
 DATA_ROOT_DIR/
     └──DATASET_DIR/
-        ├── slide_1.pt
-        ├── slide_2.pt
-        └── ...
+         ├── h5_files
+                ├── slide_1.h5
+                ├── slide_2.h5
+                └── ...
+         └── pt_files
+                ├── slide_1.pt
+                ├── slide_2.pt
+                └── ...
 ```
-DATA_ROOT_DIR is the base directory of all datasets (e.g. the directory to your SSD). DATASET_DIR is the name of the folder containing data specific to one experiment and features from each slide is stored as a .pt file inside this folder.
+DATA_ROOT_DIR is the base directory of all datasets (e.g. the directory to your SSD). DATASET_DIR is the name of the folder containing data specific to one experiment and features from each slide is stored as .pt files.
 
 Please refer to refer to [CLAM](https://github.com/mahmoodlab/CLAM) for examples on how perform this feature extraction step.
 
@@ -84,7 +89,7 @@ The script uses the **Generic_WSI_MTL_Dataset** Class for which the constructor 
 
 ### Training
 ``` shell
-CUDA_VISIBLE_DEVICES=0 python main_mtl_concat.py --drop_out --early_stopping --lr 2e-4 --k 1 --exp_code dummy_mtl_sex_100  --task dummy_mtl_concat  --log_data  --data_root_dir DATA_ROOT_DIR
+CUDA_VISIBLE_DEVICES=0 python main_mtl_concat.py --drop_out --early_stopping --lr 2e-4 --k 1 --exp_code dummy_mtl_sex  --task dummy_mtl_concat  --log_data  --data_root_dir DATA_ROOT_DIR
 ```
 The GPU to use for training can be specified using CUDA_VISIBLE_DEVICES, in the example command, GPU 0 is used. Other arguments such as --drop_out, --early_stopping, --lr, --reg, and --max_epochs can be specified to customize your experiments. 
 
@@ -102,7 +107,7 @@ This should open a browser window and show the logged training/validation statis
 ### Evaluation 
 User also has the option of using the evluation script to test the performances of trained models. Examples corresponding to the models trained above are provided below:
 ``` shell
-CUDA_VISIBLE_DEVICES=0 python eval_mtl_concat.py --drop_out --k 1 --models_exp_code study_v2_mtl_sex_100_s1 --save_exp_code study_v2_mtl_sex_100_s1_all --task study_v2_mtl_sex  --results_dir results --data_root_dir DATA_ROOT_DIR
+CUDA_VISIBLE_DEVICES=0 python eval_mtl_concat.py --drop_out --k 1 --models_exp_code dummy_mtl_sex_s1 --save_exp_code dummy_mtl_sex_s1_eval --task study_v2_mtl_sex  --results_dir results --data_root_dir DATA_ROOT_DIR
 ```
 
 For information on each commandline argument, see:
