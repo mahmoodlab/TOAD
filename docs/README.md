@@ -1,5 +1,5 @@
 
-TOAD 🐸 <img src="UNP.jpg" width="280px" align="right" />
+TOAD 🐸 <img src="UNP.png" width="280px" align="right" />
 ===========
 ### AI-based Pathology Predicts Origins for Cancers of Unknown Primary 
 (In Press)
