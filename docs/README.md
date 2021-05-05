@@ -8,7 +8,7 @@ Read Link | [Journal Link](https://dx.doi.org/10.1038/s41586-021-03512-4) | [Int
 
 *TL;DR: In this work we propose to use weakly-supervised multi-task computational pathology to aid the differential diagnosis for cancers of unknown primary (CUP). CUPs represent 1-2% of all cancers and have poor prognosis because modern cancer treatment is specific to the primary. We present TOAD (Tumor Origin Assessment via Deep-learning) for predicting the primary origin of these tumors from H&E images without using immunohistochemistry, molecular testing or clinical correlation. Our model is trained on 22,833 gigapixel diagnostic whole slide images (WSIs) from 18 different primary cancer origins and tested on an held-out set of 6,499 (WSIs) and an external set of 682 WSIs from 200+ institutions. Furthermore, we curated a large multi-institutional dataset of 743 CUP cases originiating in 150+ different medical centers and validated our model against a subset of 317 cases for which a primary differential was assigned based on evidence from extensive IHC testing, radiologic and/or clinical correlation.*
 
-© This code is made available under the GPLv3 License and is available for non-commercial academic purposes. 
+© This code is made available for non-commercial academic purposes. 
 
 ## TOAD: Tumor Origin Assessement via Deep-learning
 
