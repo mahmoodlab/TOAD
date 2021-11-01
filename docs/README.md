@@ -126,11 +126,14 @@ To test trained models on your own custom datasets, you can add them into **eval
 ## Reference
 If you find our work useful in your research or if you use parts of this code please consider citing our paper:
 ```
-
-@inproceedings{lu2020toad,
-  title     = {AI-based Pathology Predicts Origins for Cancers of Unknown Primary},
-  author    = {Ming Y. Lu, Tiffany Y. Chen, Drew F. K. Williamson, Melissa Zhao, Maha Shady, Jana Lipkova, Faisal Mahmood},
-  booktitle = {Nature},
-  year = {2021}
+@article{lu2021ai,
+  title={AI-based pathology predicts origins for cancers of unknown primary},
+  author={Lu, Ming Y and Chen, Tiffany Y and Williamson, Drew FK and Zhao, Melissa and Shady, Maha and Lipkova, Jana and Mahmood, Faisal},
+  journal={Nature},
+  volume={594},
+  number={7861},
+  pages={106--110},
+  year={2021},
+  publisher={Nature Publishing Group}
 }
 ```
