@@ -125,6 +125,9 @@ To test trained models on your own custom datasets, you can add them into **eval
 
 ## Reference
 If you find our work useful in your research or if you use parts of this code please consider citing our paper:
+
+Lu, M.Y., Chen, T.Y., Williamson, D.F.K. et al. AI-based pathology predicts origins for cancers of unknown primary. Nature 594, 106–110 (2021). https://doi.org/10.1038/s41586-021-03512-4
+
 ```
 @article{lu2021ai,
   title={AI-based pathology predicts origins for cancers of unknown primary},
