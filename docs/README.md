@@ -130,7 +130,7 @@ If you find our work useful in your research or if you use parts of this code pl
 @inproceedings{lu2020toad,
   title     = {AI-based Pathology Predicts Origins for Cancers of Unknown Primary},
   author    = {Ming Y. Lu, Tiffany Y. Chen, Drew F. K. Williamson, Melissa Zhao, Maha Shady, Jana Lipkova, Faisal Mahmood},
-  booktitle = {Nature Medicine},
+  booktitle = {Nature},
   year = {2021}
 }
 ```
