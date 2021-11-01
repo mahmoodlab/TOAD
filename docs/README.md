@@ -128,9 +128,9 @@ If you find our work useful in your research or if you use parts of this code pl
 ```
 
 @inproceedings{lu2020toad,
-  title     = {Deep Learning-based Computational Pathology Predicts Origins for Cancers of Unknown Primary},
-  author    = {Ming Y. Lu, Melissa Zhao, Maha Shady, Jana Lipkova,  Tiffany Y. Chen,  Drew F. K. Williamson, Faisal Mahmood},
-  booktitle = {arXiv},
-  year = {2020}
+  title     = {AI-based Pathology Predicts Origins for Cancers of Unknown Primary},
+  author    = {Ming Y. Lu, Tiffany Y. Chen, Drew F. K. Williamson, Melissa Zhao, Maha Shady, Jana Lipkova, Faisal Mahmood},
+  booktitle = {Nature Medicine},
+  year = {2021}
 }
 ```
